@@ -235,7 +235,7 @@ class TestAPI:
         assert response == resp_json
 
     @responses.activate
-    def test_get_coin_marget_chart_range(self):
+    def test_get_coin_market_chart_range(self):
         """Test /coins/{id}/market_chart/range."""
         from_unix_ts = 1392577232
         to_unix_ts = 1422577232
@@ -250,13 +250,13 @@ class TestAPI:
                       f'&from={from_unix_ts}&to={to_unix_ts}',
                       json=resp_json,
                       status=200)
-        response = cg.get_coin_marget_chart_range('bitcoin', 'usd',
+        response = cg.get_coin_market_chart_range('bitcoin', 'usd',
                                                   from_unix_ts, to_unix_ts)
 
         assert response == resp_json
 
         with pytest.raises(ValueError, match=r'.*from_unix_tx.*to_unix_ts.*'):
-            cg.get_coin_marget_chart_range('bitcoin',
+            cg.get_coin_market_chart_range('bitcoin',
                                            'usd',
                                            from_unix_ts=to_unix_ts,
                                            to_unix_ts=from_unix_ts)
@@ -309,4 +309,50 @@ class TestAPI:
                       status=200)
         response = cg.get_token_info('ethereum', contract_address)
 
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_token_market_chart(self):
+        """Test /coins/{id}/contract/{contract_address}/market_chart."""
+        contract_address = '0xdac17f958d2ee523a2206206994597c13d831ec7'
+        resp_json = {
+            "prices": [[1633366855116, 0.9999874659209217]],
+            "market_caps": [[1633366855116, 68765623234.10846]],
+            "total_volumes": [[1633366855116, 65421865374.78419]]
+        }
+        responses.add(responses.GET,
+                      END_POINTS +
+                      (f'coins/ethereum/contract/{contract_address}/'
+                       'market_chart?vs_currency=usd&days=1'),
+                      json=resp_json,
+                      status=200)
+        response = cg.get_token_market_chart('ethereum', contract_address,
+                                             'usd', 1)
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_token_market_chart_range(self):
+        """Test /coins/{id}/contract/{contract_address}/market_chart/range."""
+        contract_address = '0xdac17f958d2ee523a2206206994597c13d831ec7'
+        from_unix_ts = 1422577232
+        to_unix_ts = 1426577232
+        resp_json = {
+            "prices": [[1424822400000, 1.21016]],
+            "market_caps": [
+                [1424822400000, 304476],
+            ],
+            "total_volumes": [
+                [1424822400000, 5],
+            ]
+        }
+        responses.add(responses.GET,
+                      END_POINTS +
+                      (f'coins/ethereum/contract/{contract_address}/'
+                       'market_chart/range?vs_currency=usd'
+                       f'&from={from_unix_ts}&to={to_unix_ts}'),
+                      json=resp_json,
+                      status=200)
+        response = cg.get_token_market_chart_range('ethereum',
+                                                   contract_address, 'usd',
+                                                   from_unix_ts, to_unix_ts)
         assert response == resp_json

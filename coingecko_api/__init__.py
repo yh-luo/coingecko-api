@@ -126,21 +126,21 @@ class CoinGeckoAPI:
                               vs_currency: str,
                               days: Union[int, str],
                               params: Optional[Dict[str, Any]] = None) -> dict:
-        """Get historical market data."""
+        """Get historical market data for a coin."""
         _params = {'vs_currency': vs_currency, 'days': days}
         if params:
             _params.update(params)
         api_path = self._process_params(f'coins/{id}/market_chart', _params)
         return self._request('GET', api_path)
 
-    def get_coin_marget_chart_range(
+    def get_coin_market_chart_range(
             self,
             id: str,
             vs_currency: str,
             from_unix_ts: int,
             to_unix_ts: int,
             params: Optional[Dict[str, Any]] = None) -> dict:
-        """Get historical market data within a range of timestamp."""
+        """Get historical market data within a range of time for a coin."""
         if from_unix_ts > to_unix_ts:
             raise ValueError('from_unix_tx should be smaller than to_unix_ts.')
 
@@ -182,4 +182,43 @@ class CoinGeckoAPI:
         """Get coin info from contract address."""
         api_path = self._process_params(
             f'coins/{id}/contract/{contract_address}', params)
+        return self._request('GET', api_path)
+
+    def get_token_market_chart(
+            self,
+            id: str,
+            contract_address: str,
+            vs_currency: str,
+            days: Union[int, str],
+            params: Optional[Dict[str, Any]] = None) -> dict:
+        """Get historical market data for a token."""
+        _params = {'vs_currency': vs_currency, 'days': days}
+        if params:
+            _params.update(params)
+        api_path = self._process_params(
+            f'coins/{id}/contract/{contract_address}/market_chart', _params)
+        return self._request('GET', api_path)
+
+    def get_token_market_chart_range(
+            self,
+            id: str,
+            contract_address: str,
+            vs_currency: str,
+            from_unix_ts: int,
+            to_unix_ts: int,
+            params: Optional[Dict[str, Any]] = None) -> dict:
+        """Get historical market data within a range of time for a token."""
+        if from_unix_ts > to_unix_ts:
+            raise ValueError('from_unix_tx should be smaller than to_unix_ts.')
+
+        _params = {
+            'vs_currency': vs_currency,
+            'from': from_unix_ts,
+            'to': to_unix_ts
+        }
+        if params:
+            _params.update(params)
+        api_path = self._process_params(
+            f'coins/{id}/contract/{contract_address}/market_chart/range',
+            _params)
         return self._request('GET', api_path)
