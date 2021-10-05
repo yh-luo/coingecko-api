@@ -4,7 +4,6 @@ from coingecko_api import CoinGeckoAPI
 from requests.exceptions import HTTPError
 
 END_POINTS = 'https://api.coingecko.com/api/v3/'
-TEST_RESP = [{"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}]
 
 cg = CoinGeckoAPI()
 
@@ -132,35 +131,38 @@ class TestAPI:
     @responses.activate
     def test_list_coins(self):
         """Test /coins/list."""
+        resp_json = [{"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}]
         responses.add(responses.GET,
                       END_POINTS + 'coins/list',
-                      json=TEST_RESP,
+                      json=resp_json,
                       status=200)
         response = cg.list_coins()
 
-        assert response == TEST_RESP
+        assert response == resp_json
 
     @responses.activate
     def test_list_coins_markets(self):
         """Test /coins/markets."""
+        resp_json = [{"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}]
         responses.add(responses.GET,
                       END_POINTS + 'coins/markets?vs_currency=bitcoin',
-                      json=TEST_RESP,
+                      json=resp_json,
                       status=200)
         response = cg.list_coins_markets('bitcoin')
 
-        assert response == TEST_RESP
+        assert response == resp_json
 
     @responses.activate
     def test_get_coin(self):
         """Test /coins/{id}."""
+        resp_json = {"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}
         responses.add(responses.GET,
                       END_POINTS + 'coins/bitcoin',
-                      json=TEST_RESP[0],
+                      json=resp_json,
                       status=200)
         response = cg.get_coin('bitcoin')
 
-        assert response == TEST_RESP[0]
+        assert response == resp_json
 
     @responses.activate
     def test_get_coin_tickers(self):
@@ -355,4 +357,57 @@ class TestAPI:
         response = cg.get_token_market_chart_range('ethereum',
                                                    contract_address, 'usd',
                                                    from_unix_ts, to_unix_ts)
+        assert response == resp_json
+
+    # asset_platforms
+    @responses.activate
+    def test_list_asset_platforms(self):
+        """Test /asset_platforms."""
+        resp_json = [{
+            "id": "ethereum",
+            "chain_identifier": 1,
+            "name": "ethereum",
+            "shortname": ""
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + 'asset_platforms',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_asset_platforms()
+        assert response == resp_json
+
+    # categories
+    @responses.activate
+    def test_list_coins_categories(self):
+        """Test /coins/categories/list."""
+        resp_json = [{
+            "category_id": "stablecoins",
+            "name": "Stablecoins"
+        }, {
+            "category_id": "usd-stablecoin",
+            "name": "USD Stablecoin"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + '/coins/categories/list',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_coins_categories()
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_coins_categories_market(self):
+        """Test /coins/categories."""
+        resp_json = [{
+            "id": "stablecoins",
+            "name": "Stablecoins",
+            "market_cap": 130789992686.07925,
+            "market_cap_change_24h": 0.3863018764023684,
+            "volume_24h": 80474506243.29338,
+            "updated_at": "2021-10-05T17:40:26.143Z"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + '/coins/categories',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_coins_categories_market()
         assert response == resp_json

@@ -222,3 +222,20 @@ class CoinGeckoAPI:
             f'coins/{id}/contract/{contract_address}/market_chart/range',
             _params)
         return self._request('GET', api_path)
+
+    # asset platforms
+    def list_asset_platforms(self) -> List[dict]:
+        """List all asset platforms."""
+        return self._request('GET', 'asset_platforms')
+
+    # categories
+    def list_coins_categories(self) -> List[dict]:
+        """List all categories of coins."""
+        return self._request('GET', '/coins/categories/list')
+
+    def list_coins_categories_market(self,
+                                     params: Optional[Dict[str, Any]] = None
+                                     ) -> List[dict]:
+        """List all categories of coins with market data."""
+        api_path = self._process_params('/coins/categories', params)
+        return self._request('GET', api_path)
