@@ -5,6 +5,51 @@ from requests.exceptions import HTTPError
 
 END_POINTS = 'https://api.coingecko.com/api/v3/'
 
+simple_test_data_1 = [
+    ('bitcoin', 'usd', {
+        "bitcoin": {
+            "usd": 50087
+        }
+    }, 'simple/price?ids=bitcoin&vs_currencies=usd'),
+    (['bitcoin', 'ethereum'], ['usd', 'jpy'], {
+        "bitcoin": {
+            "usd": 50087,
+            "jpy": 5571067
+        },
+        "ethereum": {
+            "usd": 3453.26,
+            "jpy": 384063
+        }
+    }, 'simple/price?ids=bitcoin%2Cethereum&vs_currencies=usd%2Cjpy')
+]
+
+simple_test_data_2 = [
+    ('0xdac17f958d2ee523a2206206994597c13d831ec7', 'usd', {
+        "0xdac17f958d2ee523a2206206994597c13d831ec7": {
+            "usd": 1
+        }
+    }, ('simple/token_price/ethereum'
+        '?contract_addresses=0xdac17f958d2ee523a2206206994597c13d831ec7'
+        '&vs_currencies=usd')),
+    ([
+        '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+    ], ['usd', 'jpy'], {
+        "0xdac17f958d2ee523a2206206994597c13d831ec7": {
+            "usd": 1,
+            "jpy": 111.58
+        },
+        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
+            "usd": 1,
+            "jpy": 111.66
+        }
+    }, ('simple/token_price/ethereum'
+        '?contract_addresses=0xdac17f958d2ee523a2206206994597c13d831ec7'
+        '%2C0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        '&vs_currencies=usd'
+        '%2Cjpy'))
+]
+
 cg = CoinGeckoAPI()
 
 
@@ -26,94 +71,34 @@ class TestAPI:
         with pytest.raises(ValueError, match=r'params should be a dict.*'):
             cg.get_simple_price('bitcoin', 'usd', ['market_cap_desc'])
 
+    @pytest.mark.parametrize('ids,vs_currencies,resp_json,path',
+                             simple_test_data_1,
+                             ids=['str', 'list'])
     @responses.activate
-    def test_get_simple_price(self):
+    def test_get_simple_price(self, ids, vs_currencies, resp_json, path):
         """Test /simple/price."""
-        resp_json_s = {"bitcoin": {"usd": 50087}}
-        resp_json_l = {
-            "bitcoin": {
-                "usd": 50087,
-                "jpy": 5571067
-            },
-            "ethereum": {
-                "usd": 3453.26,
-                "jpy": 384063
-            }
-        }
-        # str
         responses.add(responses.GET,
-                      END_POINTS +
-                      'simple/price?ids=bitcoin&vs_currencies=usd',
-                      json=resp_json_s,
+                      END_POINTS + path,
+                      json=resp_json,
                       status=200)
 
-        response_s = cg.get_simple_price('bitcoin', 'usd')
-        assert response_s == resp_json_s
+        response = cg.get_simple_price(ids, vs_currencies)
+        assert response == resp_json
 
-        # list
-        responses.add(
-            responses.GET,
-            END_POINTS +
-            'simple/price?ids=bitcoin%2Cethereum&vs_currencies=usd%2Cjpy',
-            json=resp_json_l,
-            status=200)
-
-        response_l = cg.get_simple_price(['bitcoin', 'ethereum'],
-                                         ['usd', 'jpy'])
-        assert response_l == resp_json_l
-
+    @pytest.mark.parametrize('contract_addresses,vs_currencies,resp_json,path',
+                             simple_test_data_2,
+                             ids=['str', 'list'])
     @responses.activate
-    def test_get_simple_token_price(self):
-        id = 'ethereum'
-        contract_addresses_s = '0xdac17f958d2ee523a2206206994597c13d831ec7'
-        contract_addresses_l = [
-            '0xdac17f958d2ee523a2206206994597c13d831ec7',
-            '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-        ]
-        vs_currencies_s = 'usd'
-        vs_currencies_l = ['usd', 'jpy']
-        resp_json_s = {
-            "0xdac17f958d2ee523a2206206994597c13d831ec7": {
-                "usd": 1
-            }
-        }
-        resp_json_l = {
-            "0xdac17f958d2ee523a2206206994597c13d831ec7": {
-                "usd": 1,
-                "jpy": 111.58
-            },
-            "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
-                "usd": 1,
-                "jpy": 111.66
-            }
-        }
-        # str
+    def test_get_simple_token_price(self, contract_addresses, vs_currencies,
+                                    resp_json, path):
         responses.add(responses.GET,
-                      END_POINTS +
-                      (f'simple/token_price/{id}'
-                       f'?contract_addresses={contract_addresses_s}'
-                       f'&vs_currencies={vs_currencies_s}'),
-                      json=resp_json_s,
+                      END_POINTS + path,
+                      json=resp_json,
                       status=200)
 
-        response_s = cg.get_simple_token_price(id, contract_addresses_s,
-                                               vs_currencies_s)
-        assert response_s == resp_json_s
-
-        # list
-        responses.add(responses.GET,
-                      END_POINTS +
-                      (f'simple/token_price/{id}'
-                       f'?contract_addresses={contract_addresses_l[0]}'
-                       f'%2C{contract_addresses_l[1]}'
-                       f'&vs_currencies={vs_currencies_l[0]}'
-                       f'%2C{vs_currencies_l[1]}'),
-                      json=resp_json_l,
-                      status=200)
-
-        response_l = cg.get_simple_token_price(id, contract_addresses_l,
-                                               vs_currencies_l)
-        assert response_l == resp_json_l
+        response = cg.get_simple_token_price('ethereum', contract_addresses,
+                                             vs_currencies)
+        assert response == resp_json
 
     @responses.activate
     def test_get_supported_vs_currencies(self):
