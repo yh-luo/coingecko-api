@@ -116,7 +116,7 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(f'coins/markets', _params)
+        api_path = self._process_params('coins/markets', _params)
         return self._request('GET', api_path)
 
     def get_coin(self,
