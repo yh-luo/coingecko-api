@@ -231,11 +231,28 @@ class CoinGeckoAPI:
     # categories
     def list_coins_categories(self) -> List[dict]:
         """List all categories of coins."""
-        return self._request('GET', '/coins/categories/list')
+        return self._request('GET', 'coins/categories/list')
 
     def list_coins_categories_market(self,
                                      params: Optional[Dict[str, Any]] = None
                                      ) -> List[dict]:
         """List all categories of coins with market data."""
-        api_path = self._process_params('/coins/categories', params)
+        api_path = self._process_params('coins/categories', params)
         return self._request('GET', api_path)
+
+    # exchanges
+    def list_exchanges_info(self,
+                            params: Optional[Dict[str,
+                                                  Any]] = None) -> List[dict]:
+        """List all exchanges with available information."""
+        api_path = self._process_params('exchanges', params)
+        return self._request('GET', api_path)
+
+    def list_exchanges(self) -> List[dict]:
+        """List all supported markets id and name (no pagination)."""
+        return self._request('GET', 'exchanges/list')
+
+    def get_exchange_volume(self, id: str) -> dict:
+        """Get exchange volume in BTC and top 100 tickers only"""
+        return self._request('GET', f'exchanges/{id}')
+
