@@ -6,6 +6,12 @@ from requests import Request, Response, Session
 __version__ = '0.1.0'
 
 
+def _check_params(params):
+    if params is not None and type(params) != dict:
+        raise ValueError(('params should be a dict object, e.g.,'
+                          "{'order': 'market_cap_desc'}"))
+
+
 class CoinGeckoAPI:
     _ENDPOINT = 'https://api.coingecko.com/api/v3/'
     _CONNECT_TIMEOUT_S = 5
@@ -33,10 +39,10 @@ class CoinGeckoAPI:
 
     def _process_params(self,
                         api_path: str,
-                        params: Optional[Dict[str, Any]] = None,
-                        api_has_params: bool = False) -> str:
+                        params: Optional[Dict[str, Any]] = None) -> str:
         if params:
-            api_path += '&' if api_has_params else '?'
+            _check_params(params)
+            api_path += '?'
             for key, val in params.items():
                 if type(val) == bool:
                     val = str(val).lower()
@@ -67,6 +73,7 @@ class CoinGeckoAPI:
             vs_currencies) == list else vs_currencies
         _params = {'ids': ids_str, 'vs_currencies': vs_str}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params('simple/price', _params)
         return self._request('GET', api_path)
@@ -84,6 +91,7 @@ class CoinGeckoAPI:
             vs_currencies) == list else vs_currencies
         _params = {'contract_addresses': addrs_str, 'vs_currencies': vs_str}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(f'simple/token_price/{id}', _params)
         return self._request('GET', api_path)
@@ -104,6 +112,7 @@ class CoinGeckoAPI:
         """List all supported coins price and market related data."""
         _params = {'vs_currency': vs_currency}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(f'coins/markets', _params)
         return self._request('GET', api_path)
@@ -129,6 +138,7 @@ class CoinGeckoAPI:
         """Get historical data at a given date for a coin."""
         _params = {'date': date}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(f'coins/{id}/history', _params)
         return self._request('GET', api_path)
@@ -141,6 +151,7 @@ class CoinGeckoAPI:
         """Get historical market data for a coin."""
         _params = {'vs_currency': vs_currency, 'days': days}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(f'coins/{id}/market_chart', _params)
         return self._request('GET', api_path)
@@ -162,6 +173,7 @@ class CoinGeckoAPI:
             'to': to_unix_ts
         }
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(f'coins/{id}/market_chart/range',
                                         _params)
@@ -182,6 +194,7 @@ class CoinGeckoAPI:
         """Get coin's OHLC (candles)."""
         _params = {'vs_currency': vs_currency, 'days': days}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(f'coins/{id}/ohlc', _params)
         return self._request('GET', api_path)
@@ -208,6 +221,7 @@ class CoinGeckoAPI:
         """Get historical market data for a token."""
         _params = {'vs_currency': vs_currency, 'days': days}
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(
             f'coins/{id}/contract/{contract_address}/market_chart', _params)
@@ -231,6 +245,7 @@ class CoinGeckoAPI:
             'to': to_unix_ts
         }
         if params:
+            _check_params(params)
             _params.update(params)
         api_path = self._process_params(
             f'coins/{id}/contract/{contract_address}/market_chart/range',

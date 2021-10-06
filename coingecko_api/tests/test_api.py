@@ -21,6 +21,11 @@ class TestAPI:
         response = cg.ping()
         assert response == resp_json
 
+    def test_check_params(self):
+        """Test valid and invalid params."""
+        with pytest.raises(ValueError, match=r'params should be a dict.*'):
+            cg.get_simple_price('bitcoin', 'usd', ['market_cap_desc'])
+
     @responses.activate
     def test_get_simple_price(self):
         """Test /simple/price."""
@@ -58,7 +63,7 @@ class TestAPI:
         assert response_l == resp_json_l
 
     @responses.activate
-    def test_get_token_price(self):
+    def test_get_simple_token_price(self):
         id = 'ethereum'
         contract_addresses_s = '0xdac17f958d2ee523a2206206994597c13d831ec7'
         contract_addresses_l = [
