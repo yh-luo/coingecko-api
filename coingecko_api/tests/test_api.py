@@ -170,16 +170,10 @@ class TestAPI:
         """Test /coins/{id}/tickers."""
         id = 'bitcoin'
         resp_json = {
-            "name":
-            "Bitcoin",
+            "name": "Bitcoin",
             "tickers": [{
                 "base": "BTC",
-                "target": "USD",
-                "market": {
-                    "name": "Bitfinex",
-                    "identifier": "bitfinex",
-                    "has_trading_incentive": "false"
-                }
+                "target": "USD"
             }]
         }
         responses.add(responses.GET,
@@ -385,8 +379,7 @@ class TestAPI:
         resp_json = [{
             "id": "ethereum",
             "chain_identifier": 1,
-            "name": "ethereum",
-            "shortname": ""
+            "name": "ethereum"
         }]
         responses.add(responses.GET,
                       END_POINTS + 'asset_platforms',
@@ -399,13 +392,7 @@ class TestAPI:
     @responses.activate
     def test_list_coins_categories(self):
         """Test /coins/categories/list."""
-        resp_json = [{
-            "category_id": "stablecoins",
-            "name": "Stablecoins"
-        }, {
-            "category_id": "usd-stablecoin",
-            "name": "USD Stablecoin"
-        }]
+        resp_json = [{"category_id": "stablecoins", "name": "Stablecoins"}]
         responses.add(responses.GET,
                       END_POINTS + 'coins/categories/list',
                       json=resp_json,
@@ -488,7 +475,7 @@ class TestAPI:
                     "btc": 50400,
                     "eth": 739680,
                     "usd": 2590658746
-                },
+                }
             }]
         }
         responses.add(responses.GET,
@@ -526,16 +513,6 @@ class TestAPI:
                     "eth": 742818,
                     "usd": 2606201489
                 },
-                "trust_score": "green",
-                "bid_ask_spread_percentage": 0.010019,
-                "timestamp": "2021-10-06T03:05:38+00:00",
-                "last_traded_at": "2021-10-06T03:05:38+00:00",
-                "last_fetch_at": "2021-10-06T03:05:38+00:00",
-                "is_anomaly": "false",
-                "is_stale": "false",
-                "trade_url":
-                "https://www.binance.com/en/trade/BTC_USDT?ref=37754157",
-                "token_info_url": "null",
                 "coin_id": "bitcoin",
                 "target_coin_id": "tether"
             }]
@@ -581,5 +558,34 @@ class TestAPI:
                       json=resp_json,
                       status=200)
         response = cg.get_exchange_volume_chart(id, days)
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_finance_platforms(self):
+        """Test /finance_platforms."""
+        resp_json = [{
+            "name": "Aave",
+            "category": "DeFi Platform",
+            "centralized": "false",
+            "website_url": "https://aave.com/"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + 'finance_platforms',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_finance_platforms()
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_finance_products(self):
+        """Test /finance_platforms."""
+        resp_json = [{"platform": "Celsius Network", "identifier": "USDC"}]
+        responses.add(responses.GET,
+                      END_POINTS + 'finance_products',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_finance_products()
 
         assert response == resp_json

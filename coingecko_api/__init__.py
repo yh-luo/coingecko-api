@@ -276,3 +276,17 @@ class CoinGeckoAPI:
         api_path = self._process_params(f'exchanges/{id}/volume_chart',
                                         {'days': days})
         return self._request('GET', api_path)
+
+    # finance
+    def list_finance_platforms(self,
+                               params: Optional[Dict[str, Any]] = None
+                               ) -> List[dict]:
+        """List all finance platforms."""
+        api_path = self._process_params('finance_platforms', params)
+        return self._request('GET', api_path)
+
+    def list_finance_products(self,
+                              params: Optional[Dict[str, Any]] = None
+                              ) -> List[dict]:
+        api_path = self._process_params('finance_products', params)
+        return self._request('GET', api_path)
