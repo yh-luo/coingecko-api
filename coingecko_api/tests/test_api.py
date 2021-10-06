@@ -34,6 +34,53 @@ class TestAPI:
         assert response == resp_json
 
     @responses.activate
+    def test_get_exchange_rates(self):
+        """Test /exchange_rates"""
+        resp_json = {
+            "rates": {
+                "btc": {
+                    "name": "Bitcoin",
+                    "unit": "BTC",
+                    "value": 1,
+                    "type": "crypto"
+                }
+            }
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'exchange_rates',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_exchange_rates()
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_search_trending(self):
+        """Test /search/trending."""
+        resp_json = {
+            "coins": [{
+                "item": {
+                    "id": "ethereum",
+                    "coin_id": 279,
+                    "name": "Ethereum",
+                    "symbol": "ETH",
+                    "market_cap_rank": 2,
+                    "slug": "ethereum",
+                    "price_btc": 0.06564781999611292,
+                    "score": 0
+                }
+            }],
+            "exchanges": []
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'search/trending',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_search_trending()
+        assert response == resp_json
+
+    @responses.activate
     def test_get_simple_price(self):
         """Test /simple/price."""
         resp_json_s = {"bitcoin": {"usd": 50087}}
@@ -745,4 +792,86 @@ class TestAPI:
                       status=200)
 
         response = cg.list_event_types()
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_global(self):
+        """Test /global."""
+        resp_json = {
+            "data": {
+                "active_cryptocurrencies": 9548,
+                "upcoming_icos": 0,
+                "ongoing_icos": 50,
+                "ended_icos": 3375,
+                "markets": 652,
+                "total_market_cap": {
+                    "btc": 43713855.59427393,
+                },
+                "total_volume": {
+                    "btc": 3383889.526825504,
+                },
+                "market_cap_percentage": {
+                    "btc": 43.09051880180091
+                },
+                "market_cap_change_percentage_24h_usd": 5.889237875780905,
+                "updated_at": 0
+            }
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'global',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_global()
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_global_defi(self):
+        """Test /global/decentralized_finance_defi."""
+        resp_json = {
+            "data": {
+                "defi_market_cap": "125093232243",
+                "eth_market_cap": "422689571997",
+                "defi_to_eth_ratio": "29",
+                "trading_volume_24h": "13200319936",
+                "defi_dominance": "5",
+                "top_coin_name": "Terra",
+                "top_coin_defi_dominance": 14
+            }
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'global/decentralized_finance_defi',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_global_defi()
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_companies_holdings(self):
+        """Test ​/companies​/public_treasury​/{coin_id}."""
+        id = 'bitcoin'
+        resp_json = {
+            "total_holdings":
+            208364.6658,
+            "total_value_usd":
+            11378517915.243517,
+            "market_cap_dominance":
+            1.11,
+            "companies": [{
+                "name": "MicroStrategy Inc.",
+                "symbol": "NASDAQ:MSTR",
+                "country": "US",
+                "total_holdings": 114042,
+                "total_entry_value_usd": 3160000000,
+                "total_current_value_usd": 6227682294,
+                "percentage_of_total_supply": 0.543
+            }]
+        }
+        responses.add(responses.GET,
+                      END_POINTS + f'companies/public_treasury/{id}',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.list_companies_holdings(id)
         assert response == resp_json

@@ -39,6 +39,7 @@ class CoinGeckoAPI:
             api_path = api_path[:-1]  # remove the redundant '&'
         return api_path
 
+    # General
     # ping
     def ping(self) -> dict:
         """Check API server status."""
@@ -50,6 +51,16 @@ class CoinGeckoAPI:
         """List all status_updates with data."""
         api_path = self._process_params('status_updates', params)
         return self._request('GET', api_path)
+
+    # exchange_rates
+    def get_exchange_rates(self) -> dict:
+        """Get BTC-to-Currency exchange rates."""
+        return self._request('GET', 'exchange_rates')
+
+    # trending
+    def get_search_trending(self) -> dict:
+        """Get trending search coins (Top7) in the last 24 hours."""
+        return self._request('GET', 'search/trending')
 
     # simple
     def get_simple_price(self,
@@ -347,10 +358,24 @@ class CoinGeckoAPI:
         api_path = self._process_params('events', params)
         return self._request('GET', api_path)
 
-    def list_event_countries(self):
+    def list_event_countries(self) -> dict:
         """Get list of event countries."""
         return self._request('GET', 'events/countries')
 
-    def list_event_types(self):
+    def list_event_types(self) -> dict:
         """Get list of event types."""
         return self._request('GET', 'events/types')
+
+    # global
+    def get_global(self) -> dict:
+        """Get cryptocurrency global data."""
+        return self._request('GET', 'global')
+
+    def get_global_defi(self) -> dict:
+        """Get top 100 cryptocurrency decentralized finance(defi) data."""
+        return self._request('GET', 'global/decentralized_finance_defi')
+
+    # companies
+    def list_companies_holdings(self, id: str) -> dict:
+        """Get public companies bitcoin or ethereum holdings. (beta)"""
+        return self._request('GET', f'companies/public_treasury/{id}')
