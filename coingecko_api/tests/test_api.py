@@ -57,7 +57,7 @@ class TestAPI:
         assert response_l == resp_json_l
 
     @responses.activate
-    def test_get_simple_token_price(self):
+    def test_get_token_price(self):
         id = 'ethereum'
         contract_addresses_s = '0xdac17f958d2ee523a2206206994597c13d831ec7'
         contract_addresses_l = [
@@ -408,8 +408,7 @@ class TestAPI:
             "name": "Stablecoins",
             "market_cap": 130789992686.07925,
             "market_cap_change_24h": 0.3863018764023684,
-            "volume_24h": 80474506243.29338,
-            "updated_at": "2021-10-05T17:40:26.143Z"
+            "volume_24h": 80474506243.29338
         }]
         responses.add(responses.GET,
                       END_POINTS + 'coins/categories',
@@ -532,10 +531,7 @@ class TestAPI:
         resp_json = {
             "status_updates": [{
                 "description": "Binance Launchpool",
-                "category": "general",
-                "created_at": "2020-12-14T11:18:49.085Z",
-                "user": "Darc",
-                "user_title": "Marketing"
+                "category": "general"
             }]
         }
         responses.add(responses.GET,
@@ -564,12 +560,7 @@ class TestAPI:
     @responses.activate
     def test_list_finance_platforms(self):
         """Test /finance_platforms."""
-        resp_json = [{
-            "name": "Aave",
-            "category": "DeFi Platform",
-            "centralized": "false",
-            "website_url": "https://aave.com/"
-        }]
+        resp_json = [{"name": "Aave", "category": "DeFi Platform"}]
         responses.add(responses.GET,
                       END_POINTS + 'finance_platforms',
                       json=resp_json,
@@ -588,4 +579,91 @@ class TestAPI:
                       status=200)
         response = cg.list_finance_products()
 
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_indexes_info(self):
+        """Test /indexes."""
+        resp_json = [{
+            "name": "CoinFLEX (Futures) DFN",
+            "id": "DFN",
+            "market": "CoinFLEX (Futures)"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + 'indexes',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_indexes_info()
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_indexes(self):
+        """Test /indexes/list."""
+        resp_json = [{"id": "DFN", "name": "CoinFLEX (Futures) DFN"}]
+        responses.add(responses.GET,
+                      END_POINTS + 'indexes/list',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_indexes()
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_derivatives(self):
+        """Test /derivatives."""
+        resp_json = [{
+            "market": "Binance (Futures)",
+            "symbol": "BTCUSDT",
+            "index_id": "BTC"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + 'derivatives',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_derivatives()
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_derivatives_exchanges_info(self):
+        """Test /derivatives/exchanges."""
+        resp_json = [{
+            "name": "Binance (Futures)",
+            "id": "binance_futures",
+            "year_established": 2019,
+            "url": "https://www.binance.com/"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + 'derivatives/exchanges',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_derivatives_exchanges_info()
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_derivatives_exchange_info(self):
+        """Test /derivatives/exchanges/{id}."""
+        id = 'binance_futures'
+        resp_json = [{
+            "name": "Binance (Futures)",
+            "id": "binance_futures",
+            "year_established": 2019,
+            "url": "https://www.binance.com/"
+        }]
+        responses.add(responses.GET,
+                      END_POINTS + f'derivatives/exchanges/{id}',
+                      json=resp_json,
+                      status=200)
+        response = cg.get_derivatives_exchange_info(id)
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_derivatives_exchanges(self):
+        """Test /derivatives/exchanges/list."""
+        resp_json = [{"id": "binance_futures", "name": "Binance (Futures)"}]
+        responses.add(responses.GET,
+                      END_POINTS + 'derivatives/exchanges/list',
+                      json=resp_json,
+                      status=200)
+        response = cg.list_derivatives_exchanges()
         assert response == resp_json

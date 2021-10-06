@@ -290,3 +290,46 @@ class CoinGeckoAPI:
                               ) -> List[dict]:
         api_path = self._process_params('finance_products', params)
         return self._request('GET', api_path)
+
+    # indexes
+    def list_indexes_info(self,
+                          params: Optional[Dict[str,
+                                                Any]] = None) -> List[dict]:
+        """List all market indexes with available information."""
+        api_path = self._process_params('indexes', params)
+        return self._request('GET', api_path)
+
+    def list_indexes(self) -> List[dict]:
+        """List market indexes id and name."""
+        return self._request('GET', 'indexes/list')
+
+    # NOTE: unable to test
+    def get_market_index(self, market_id: str, id: str) -> dict:
+        """Get market index by market id and index id."""
+        return self._request('GET', f'indexes/{market_id}/{id}')
+
+    # derivatives
+    def list_derivatives(self,
+                         params: Optional[Dict[str,
+                                               Any]] = None) -> List[dict]:
+        """List all derivative tickers."""
+        api_path = self._process_params('derivatives', params)
+        return self._request('GET', api_path)
+
+    def list_derivatives_exchanges_info(self,
+                                        params: Optional[Dict[str, Any]] = None
+                                        ) -> List[dict]:
+        """List all derivative exchanges with available information."""
+        api_path = self._process_params('derivatives/exchanges', params)
+        return self._request('GET', api_path)
+
+    def get_derivatives_exchange_info(self,
+                                      id: str,
+                                      params: Optional[Dict[str, Any]] = None
+                                      ) -> dict:
+        """Get derivative exchange data (able to include tickers)."""
+        api_path = self._process_params(f'derivatives/exchanges/{id}', params)
+        return self._request('GET', api_path)
+
+    def list_derivatives_exchanges(self) -> List[dict]:
+        return self._request('GET', 'derivatives/exchanges/list')
