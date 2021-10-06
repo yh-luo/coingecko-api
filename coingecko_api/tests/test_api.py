@@ -496,4 +496,90 @@ class TestAPI:
                       json=resp_json,
                       status=200)
         response = cg.get_exchange_volume(id)
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_exchange_tickers(self):
+        """Test /exchanges/{id}/tickers."""
+        id = 'binance'
+        resp_json = {
+            "name":
+            "Binance",
+            "tickers": [{
+                "base": "BTC",
+                "target": "USDT",
+                "market": {
+                    "name": "Binance",
+                    "identifier": "binance",
+                    "has_trading_incentive": "false"
+                },
+                "last": 51534.03,
+                "volume": 50514.87895281648,
+                "converted_last": {
+                    "btc": 0.99958898,
+                    "eth": 14.704929,
+                    "usd": 51593
+                },
+                "converted_volume": {
+                    "btc": 50494,
+                    "eth": 742818,
+                    "usd": 2606201489
+                },
+                "trust_score": "green",
+                "bid_ask_spread_percentage": 0.010019,
+                "timestamp": "2021-10-06T03:05:38+00:00",
+                "last_traded_at": "2021-10-06T03:05:38+00:00",
+                "last_fetch_at": "2021-10-06T03:05:38+00:00",
+                "is_anomaly": "false",
+                "is_stale": "false",
+                "trade_url":
+                "https://www.binance.com/en/trade/BTC_USDT?ref=37754157",
+                "token_info_url": "null",
+                "coin_id": "bitcoin",
+                "target_coin_id": "tether"
+            }]
+        }
+        responses.add(responses.GET,
+                      END_POINTS + f'exchanges/{id}/tickers',
+                      json=resp_json,
+                      status=200)
+        response = cg.get_exchange_tickers(id)
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_exchange_status(self):
+        """Test /exchanges/{id}/status_updates."""
+        id = 'binance'
+        resp_json = {
+            "status_updates": [{
+                "description": "Binance Launchpool",
+                "category": "general",
+                "created_at": "2020-12-14T11:18:49.085Z",
+                "user": "Darc",
+                "user_title": "Marketing"
+            }]
+        }
+        responses.add(responses.GET,
+                      END_POINTS + f'exchanges/{id}/status_updates',
+                      json=resp_json,
+                      status=200)
+        response = cg.get_exchange_status(id)
+
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_exchange_volume_chart(self):
+        """Test /exchanges/{id}/volume_chart"""
+        id = 'binance'
+        days = 1
+        resp_json = [[1633408200000, "540716.62953207615878112376190664116"],
+                     [1633408800000, "539567.02347984278641005250981327051"]]
+        responses.add(responses.GET,
+                      END_POINTS + f'exchanges/{id}/volume_chart',
+                      json=resp_json,
+                      status=200)
+        response = cg.get_exchange_volume_chart(id, days)
+
         assert response == resp_json

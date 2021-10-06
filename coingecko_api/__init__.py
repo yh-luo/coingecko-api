@@ -256,3 +256,23 @@ class CoinGeckoAPI:
         """Get exchange volume in BTC and top 100 tickers only"""
         return self._request('GET', f'exchanges/{id}')
 
+    def get_exchange_tickers(self,
+                             id: str,
+                             params: Optional[Dict[str, Any]] = None) -> dict:
+        """Get exchange tickers (paginated)."""
+        api_path = self._process_params(f'exchanges/{id}/tickers', params)
+        return self._request('GET', api_path)
+
+    def get_exchange_status(self,
+                            id: str,
+                            params: Optional[Dict[str, Any]] = None) -> dict:
+        """Get status updates for a given exchange."""
+        api_path = self._process_params(f'exchanges/{id}/status_updates',
+                                        params)
+        return self._request('GET', api_path)
+
+    def get_exchange_volume_chart(self, id: str, days: int) -> List[list]:
+        """Get volume_chart data for a given exchange."""
+        api_path = self._process_params(f'exchanges/{id}/volume_chart',
+                                        {'days': days})
+        return self._request('GET', api_path)
