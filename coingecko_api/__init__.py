@@ -44,6 +44,13 @@ class CoinGeckoAPI:
         """Check API server status."""
         return self._request('GET', 'ping')
 
+    # status_updates
+    def get_status_updates(self,
+                           params: Optional[Dict[str, Any]] = None) -> dict:
+        """List all status_updates with data."""
+        api_path = self._process_params('status_updates', params)
+        return self._request('GET', api_path)
+
     # simple
     def get_simple_price(self,
                          ids: Union[str, List[str]],
@@ -333,3 +340,17 @@ class CoinGeckoAPI:
 
     def list_derivatives_exchanges(self) -> List[dict]:
         return self._request('GET', 'derivatives/exchanges/list')
+
+    # events
+    def list_events(self, params: Optional[Dict[str, Any]] = None) -> dict:
+        """Get events, paginated by 100."""
+        api_path = self._process_params('events', params)
+        return self._request('GET', api_path)
+
+    def list_event_countries(self):
+        """Get list of event countries."""
+        return self._request('GET', 'events/countries')
+
+    def list_event_types(self):
+        """Get list of event types."""
+        return self._request('GET', 'events/types')

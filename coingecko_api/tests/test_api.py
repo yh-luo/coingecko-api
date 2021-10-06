@@ -19,7 +19,18 @@ class TestAPI:
                       status=200)
 
         response = cg.ping()
+        assert response == resp_json
 
+    @responses.activate
+    def test_get_status_updates(self):
+        """Test /status_updates."""
+        resp_json = {"status_updates": []}
+        responses.add(responses.GET,
+                      END_POINTS + 'status_updates',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_status_updates()
         assert response == resp_json
 
     @responses.activate
@@ -42,6 +53,7 @@ class TestAPI:
                       'simple/price?ids=bitcoin&vs_currencies=usd',
                       json=resp_json_s,
                       status=200)
+
         response_s = cg.get_simple_price('bitcoin', 'usd')
         assert response_s == resp_json_s
 
@@ -52,6 +64,7 @@ class TestAPI:
             'simple/price?ids=bitcoin%2Cethereum&vs_currencies=usd%2Cjpy',
             json=resp_json_l,
             status=200)
+
         response_l = cg.get_simple_price(['bitcoin', 'ethereum'],
                                          ['usd', 'jpy'])
         assert response_l == resp_json_l
@@ -89,6 +102,7 @@ class TestAPI:
                        f'&vs_currencies={vs_currencies_s}'),
                       json=resp_json_s,
                       status=200)
+
         response_s = cg.get_simple_token_price(id, contract_addresses_s,
                                                vs_currencies_s)
         assert response_s == resp_json_s
@@ -103,6 +117,7 @@ class TestAPI:
                        f'%2C{vs_currencies_l[1]}'),
                       json=resp_json_l,
                       status=200)
+
         response_l = cg.get_simple_token_price(id, contract_addresses_l,
                                                vs_currencies_l)
         assert response_l == resp_json_l
@@ -135,8 +150,8 @@ class TestAPI:
                       END_POINTS + 'coins/list',
                       json=resp_json,
                       status=200)
-        response = cg.list_coins()
 
+        response = cg.list_coins()
         assert response == resp_json
 
     @responses.activate
@@ -148,8 +163,8 @@ class TestAPI:
                       END_POINTS + 'coins/markets?vs_currency=bitcoin',
                       json=resp_json,
                       status=200)
-        response = cg.list_coins_markets(id)
 
+        response = cg.list_coins_markets(id)
         assert response == resp_json
 
     @responses.activate
@@ -161,8 +176,8 @@ class TestAPI:
                       END_POINTS + 'coins/bitcoin',
                       json=resp_json,
                       status=200)
-        response = cg.get_coin(id)
 
+        response = cg.get_coin(id)
         assert response == resp_json
 
     @responses.activate
@@ -180,8 +195,8 @@ class TestAPI:
                       END_POINTS + f'coins/{id}/tickers',
                       json=resp_json,
                       status=200)
-        response = cg.get_coin_tickers(id)
 
+        response = cg.get_coin_tickers(id)
         assert response == resp_json
 
     @responses.activate
@@ -212,8 +227,8 @@ class TestAPI:
                       END_POINTS + f'coins/{id}/history?date={date}',
                       json=resp_json,
                       status=200)
-        response = cg.get_coin_history(id, date)
 
+        response = cg.get_coin_history(id, date)
         assert response == resp_json
 
     @responses.activate
@@ -233,8 +248,8 @@ class TestAPI:
             f'coins/{id}/market_chart?vs_currency={vs_currency}&days={days}',
             json=resp_json,
             status=200)
-        response = cg.get_coin_market_chart(id, vs_currency, days)
 
+        response = cg.get_coin_market_chart(id, vs_currency, days)
         assert response == resp_json
 
     @responses.activate
@@ -256,6 +271,7 @@ class TestAPI:
              f'&from={from_unix_ts}&to={to_unix_ts}'),
             json=resp_json,
             status=200)
+
         response = cg.get_coin_market_chart_range(id, vs_currency,
                                                   from_unix_ts, to_unix_ts)
 
@@ -292,8 +308,8 @@ class TestAPI:
                       f'coins/{id}/ohlc?vs_currency={vs_currency}&days={days}',
                       json=resp_json,
                       status=200)
-        response = cg.get_coin_ohlc(id, vs_currency, days)
 
+        response = cg.get_coin_ohlc(id, vs_currency, days)
         assert response == resp_json
 
     # contract
@@ -317,8 +333,8 @@ class TestAPI:
                       END_POINTS + f'coins/{id}/contract/{contract_address}',
                       json=resp_json,
                       status=200)
-        response = cg.get_token_info(id, contract_address)
 
+        response = cg.get_token_info(id, contract_address)
         assert response == resp_json
 
     @responses.activate
@@ -339,6 +355,7 @@ class TestAPI:
                        f'market_chart?vs_currency={vs_currency}&days={days}'),
                       json=resp_json,
                       status=200)
+
         response = cg.get_token_market_chart(id, contract_address, vs_currency,
                                              days)
         assert response == resp_json
@@ -367,6 +384,7 @@ class TestAPI:
                        f'&from={from_unix_ts}&to={to_unix_ts}'),
                       json=resp_json,
                       status=200)
+
         response = cg.get_token_market_chart_range(id, contract_address,
                                                    vs_currency, from_unix_ts,
                                                    to_unix_ts)
@@ -385,6 +403,7 @@ class TestAPI:
                       END_POINTS + 'asset_platforms',
                       json=resp_json,
                       status=200)
+
         response = cg.list_asset_platforms()
         assert response == resp_json
 
@@ -397,6 +416,7 @@ class TestAPI:
                       END_POINTS + 'coins/categories/list',
                       json=resp_json,
                       status=200)
+
         response = cg.list_coins_categories()
         assert response == resp_json
 
@@ -414,6 +434,7 @@ class TestAPI:
                       END_POINTS + 'coins/categories',
                       json=resp_json,
                       status=200)
+
         response = cg.list_coins_categories_market()
         assert response == resp_json
 
@@ -430,6 +451,7 @@ class TestAPI:
                       END_POINTS + 'exchanges',
                       json=resp_json,
                       status=200)
+
         response = cg.list_exchanges_info()
         assert response == resp_json
 
@@ -441,6 +463,7 @@ class TestAPI:
                       END_POINTS + 'exchanges/list',
                       json=resp_json,
                       status=200)
+
         response = cg.list_exchanges()
         assert response == resp_json
 
@@ -481,8 +504,8 @@ class TestAPI:
                       END_POINTS + f'exchanges/{id}',
                       json=resp_json,
                       status=200)
-        response = cg.get_exchange_volume(id)
 
+        response = cg.get_exchange_volume(id)
         assert response == resp_json
 
     @responses.activate
@@ -538,8 +561,8 @@ class TestAPI:
                       END_POINTS + f'exchanges/{id}/status_updates',
                       json=resp_json,
                       status=200)
-        response = cg.get_exchange_status(id)
 
+        response = cg.get_exchange_status(id)
         assert response == resp_json
 
     @responses.activate
@@ -553,8 +576,8 @@ class TestAPI:
                       END_POINTS + f'exchanges/{id}/volume_chart',
                       json=resp_json,
                       status=200)
-        response = cg.get_exchange_volume_chart(id, days)
 
+        response = cg.get_exchange_volume_chart(id, days)
         assert response == resp_json
 
     @responses.activate
@@ -577,8 +600,8 @@ class TestAPI:
                       END_POINTS + 'finance_products',
                       json=resp_json,
                       status=200)
-        response = cg.list_finance_products()
 
+        response = cg.list_finance_products()
         assert response == resp_json
 
     @responses.activate
@@ -593,8 +616,8 @@ class TestAPI:
                       END_POINTS + 'indexes',
                       json=resp_json,
                       status=200)
-        response = cg.list_indexes_info()
 
+        response = cg.list_indexes_info()
         assert response == resp_json
 
     @responses.activate
@@ -605,8 +628,8 @@ class TestAPI:
                       END_POINTS + 'indexes/list',
                       json=resp_json,
                       status=200)
-        response = cg.list_indexes()
 
+        response = cg.list_indexes()
         assert response == resp_json
 
     @responses.activate
@@ -621,6 +644,7 @@ class TestAPI:
                       END_POINTS + 'derivatives',
                       json=resp_json,
                       status=200)
+
         response = cg.list_derivatives()
         assert response == resp_json
 
@@ -637,6 +661,7 @@ class TestAPI:
                       END_POINTS + 'derivatives/exchanges',
                       json=resp_json,
                       status=200)
+
         response = cg.list_derivatives_exchanges_info()
         assert response == resp_json
 
@@ -654,6 +679,7 @@ class TestAPI:
                       END_POINTS + f'derivatives/exchanges/{id}',
                       json=resp_json,
                       status=200)
+
         response = cg.get_derivatives_exchange_info(id)
         assert response == resp_json
 
@@ -665,5 +691,58 @@ class TestAPI:
                       END_POINTS + 'derivatives/exchanges/list',
                       json=resp_json,
                       status=200)
+
         response = cg.list_derivatives_exchanges()
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_events(self):
+        """Test /events."""
+        resp_json = {
+            "data": [{
+                "type": "Conference",
+                "title": "GeckoCon - NFTs Gone Wild",
+                "organizer": "CoinGecko"
+            }],
+            "count":
+            1,
+            "page":
+            1
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'events',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.list_events()
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_event_countries(self):
+        """Test /events/countries."""
+        resp_json = {
+            "data": [{
+                "country": "Taiwan",
+                "code": "TW"
+            }],
+            "count": 66
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'events/countries',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.list_event_countries()
+        assert response == resp_json
+
+    @responses.activate
+    def test_list_event_types(self):
+        """Test /events/types."""
+        resp_json = {"data": ["Event", "Conference", "Meetup"], "count": 3}
+        responses.add(responses.GET,
+                      END_POINTS + 'events/types',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.list_event_types()
         assert response == resp_json
