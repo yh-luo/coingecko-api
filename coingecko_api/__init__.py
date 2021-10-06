@@ -1,3 +1,4 @@
+import atexit
 from typing import Any, Dict, List, Optional, Union
 
 from requests import Request, Response, Session
@@ -11,6 +12,10 @@ class CoinGeckoAPI:
 
     def __init__(self) -> None:
         self.session = Session()
+        atexit.register(self.close)
+
+    def __del__(self):
+        self.close()
 
     def _request(self, method: str, path: str, **kwargs) -> Any:
         request = Request(method, self._ENDPOINT + path, **kwargs)
@@ -39,30 +44,19 @@ class CoinGeckoAPI:
             api_path = api_path[:-1]  # remove the redundant '&'
         return api_path
 
-    # General
+    def close(self):
+        """Make sure the connection is closed."""
+        if self.session is not None:
+            self.session.close()
+
     # ping
     def ping(self) -> dict:
         """Check API server status."""
         return self._request('GET', 'ping')
 
-    # status_updates
-    def get_status_updates(self,
-                           params: Optional[Dict[str, Any]] = None) -> dict:
-        """List all status_updates with data."""
-        api_path = self._process_params('status_updates', params)
-        return self._request('GET', api_path)
-
-    # exchange_rates
-    def get_exchange_rates(self) -> dict:
-        """Get BTC-to-Currency exchange rates."""
-        return self._request('GET', 'exchange_rates')
-
-    # trending
-    def get_search_trending(self) -> dict:
-        """Get trending search coins (Top7) in the last 24 hours."""
-        return self._request('GET', 'search/trending')
-
+    #
     # simple
+    #
     def get_simple_price(self,
                          ids: Union[str, List[str]],
                          vs_currencies: Union[str, List[str]],
@@ -192,7 +186,9 @@ class CoinGeckoAPI:
         api_path = self._process_params(f'coins/{id}/ohlc', _params)
         return self._request('GET', api_path)
 
-    # contract
+    #
+    # contract/token
+    #
     def get_token_info(self,
                        id: str,
                        contract_address: str,
@@ -352,6 +348,13 @@ class CoinGeckoAPI:
     def list_derivatives_exchanges(self) -> List[dict]:
         return self._request('GET', 'derivatives/exchanges/list')
 
+    # status_updates
+    def get_status_updates(self,
+                           params: Optional[Dict[str, Any]] = None) -> dict:
+        """List all status_updates with data."""
+        api_path = self._process_params('status_updates', params)
+        return self._request('GET', api_path)
+
     # events
     def list_events(self, params: Optional[Dict[str, Any]] = None) -> dict:
         """Get events, paginated by 100."""
@@ -374,6 +377,16 @@ class CoinGeckoAPI:
     def get_global_defi(self) -> dict:
         """Get top 100 cryptocurrency decentralized finance(defi) data."""
         return self._request('GET', 'global/decentralized_finance_defi')
+
+    # exchange_rates
+    def get_exchange_rates(self) -> dict:
+        """Get BTC-to-Currency exchange rates."""
+        return self._request('GET', 'exchange_rates')
+
+    # trending
+    def get_search_trending(self) -> dict:
+        """Get trending search coins (Top7) in the last 24 hours."""
+        return self._request('GET', 'search/trending')
 
     # companies
     def list_companies_holdings(self, id: str) -> dict:

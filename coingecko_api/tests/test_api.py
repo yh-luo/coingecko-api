@@ -22,65 +22,6 @@ class TestAPI:
         assert response == resp_json
 
     @responses.activate
-    def test_get_status_updates(self):
-        """Test /status_updates."""
-        resp_json = {"status_updates": []}
-        responses.add(responses.GET,
-                      END_POINTS + 'status_updates',
-                      json=resp_json,
-                      status=200)
-
-        response = cg.get_status_updates()
-        assert response == resp_json
-
-    @responses.activate
-    def test_get_exchange_rates(self):
-        """Test /exchange_rates"""
-        resp_json = {
-            "rates": {
-                "btc": {
-                    "name": "Bitcoin",
-                    "unit": "BTC",
-                    "value": 1,
-                    "type": "crypto"
-                }
-            }
-        }
-        responses.add(responses.GET,
-                      END_POINTS + 'exchange_rates',
-                      json=resp_json,
-                      status=200)
-
-        response = cg.get_exchange_rates()
-        assert response == resp_json
-
-    @responses.activate
-    def test_get_search_trending(self):
-        """Test /search/trending."""
-        resp_json = {
-            "coins": [{
-                "item": {
-                    "id": "ethereum",
-                    "coin_id": 279,
-                    "name": "Ethereum",
-                    "symbol": "ETH",
-                    "market_cap_rank": 2,
-                    "slug": "ethereum",
-                    "price_btc": 0.06564781999611292,
-                    "score": 0
-                }
-            }],
-            "exchanges": []
-        }
-        responses.add(responses.GET,
-                      END_POINTS + 'search/trending',
-                      json=resp_json,
-                      status=200)
-
-        response = cg.get_search_trending()
-        assert response == resp_json
-
-    @responses.activate
     def test_get_simple_price(self):
         """Test /simple/price."""
         resp_json_s = {"bitcoin": {"usd": 50087}}
@@ -795,6 +736,18 @@ class TestAPI:
         assert response == resp_json
 
     @responses.activate
+    def test_get_status_updates(self):
+        """Test /status_updates."""
+        resp_json = {"status_updates": []}
+        responses.add(responses.GET,
+                      END_POINTS + 'status_updates',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_status_updates()
+        assert response == resp_json
+
+    @responses.activate
     def test_get_global(self):
         """Test /global."""
         resp_json = {
@@ -845,6 +798,53 @@ class TestAPI:
                       status=200)
 
         response = cg.get_global_defi()
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_exchange_rates(self):
+        """Test /exchange_rates"""
+        resp_json = {
+            "rates": {
+                "btc": {
+                    "name": "Bitcoin",
+                    "unit": "BTC",
+                    "value": 1,
+                    "type": "crypto"
+                }
+            }
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'exchange_rates',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_exchange_rates()
+        assert response == resp_json
+
+    @responses.activate
+    def test_get_search_trending(self):
+        """Test /search/trending."""
+        resp_json = {
+            "coins": [{
+                "item": {
+                    "id": "ethereum",
+                    "coin_id": 279,
+                    "name": "Ethereum",
+                    "symbol": "ETH",
+                    "market_cap_rank": 2,
+                    "slug": "ethereum",
+                    "price_btc": 0.06564781999611292,
+                    "score": 0
+                }
+            }],
+            "exchanges": []
+        }
+        responses.add(responses.GET,
+                      END_POINTS + 'search/trending',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_search_trending()
         assert response == resp_json
 
     @responses.activate
