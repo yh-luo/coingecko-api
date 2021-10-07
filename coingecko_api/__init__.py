@@ -55,7 +55,9 @@ class CoinGeckoAPI:
         if self.session is not None:
             self.session.close()
 
+    #
     # ping
+    #
     def ping(self) -> dict:
         """Check API server status."""
         return self._request('GET', 'ping')
@@ -330,7 +332,9 @@ class CoinGeckoAPI:
         api_path = self._process_params('finance_products', params)
         return self._request('GET', api_path)
 
+    #
     # indexes
+    #
     def list_indexes_info(self,
                           params: Optional[Dict[str,
                                                 Any]] = None) -> List[dict]:

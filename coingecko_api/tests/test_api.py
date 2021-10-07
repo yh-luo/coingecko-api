@@ -54,6 +54,14 @@ cg = CoinGeckoAPI()
 
 
 class TestAPI:
+    def test_check_params(self):
+        """Test valid and invalid params."""
+        with pytest.raises(ValueError, match=r'params should be a dict.*'):
+            cg.get_simple_price('bitcoin', 'usd', ['market_cap_desc'])
+
+    #
+    # ping
+    #
     @responses.activate
     def test_ping(self):
         """Test /ping."""
@@ -66,11 +74,17 @@ class TestAPI:
         response = cg.ping()
         assert response == resp_json
 
-    def test_check_params(self):
-        """Test valid and invalid params."""
-        with pytest.raises(ValueError, match=r'params should be a dict.*'):
-            cg.get_simple_price('bitcoin', 'usd', ['market_cap_desc'])
+    @responses.activate
+    def test_failed_ping(self):
+        """Test /ping 404."""
+        responses.add(responses.GET, END_POINTS + 'ping', status=404)
 
+        with pytest.raises(HTTPError):
+            cg.ping()
+
+    #
+    # simple
+    #
     @pytest.mark.parametrize('ids,vs_currencies,resp_json,path',
                              simple_test_data_1,
                              ids=['str', 'list'])
@@ -112,14 +126,9 @@ class TestAPI:
         response = cg.get_supported_vs_currencies()
         assert response == resp_json
 
-    @responses.activate
-    def test_failed_ping(self):
-        """Test /ping 404."""
-        responses.add(responses.GET, END_POINTS + 'ping', status=404)
-
-        with pytest.raises(HTTPError):
-            cg.ping()
-
+    #
+    # coins
+    #
     @responses.activate
     def test_list_coins(self):
         """Test /coins/list."""
@@ -290,7 +299,9 @@ class TestAPI:
         response = cg.get_coin_ohlc(id, vs_currency, days)
         assert response == resp_json
 
-    # contract
+    #
+    # contract/token
+    #
     @responses.activate
     def test_get_token_info(self):
         """Test /coins/{id}/contract/{contract_address}."""
@@ -368,7 +379,9 @@ class TestAPI:
                                                    to_unix_ts)
         assert response == resp_json
 
-    # asset_platforms
+    #
+    # asset platforms
+    #
     @responses.activate
     def test_list_asset_platforms(self):
         """Test /asset_platforms."""
@@ -385,7 +398,9 @@ class TestAPI:
         response = cg.list_asset_platforms()
         assert response == resp_json
 
+    #
     # categories
+    #
     @responses.activate
     def test_list_coins_categories(self):
         """Test /coins/categories/list."""
@@ -398,6 +413,9 @@ class TestAPI:
         response = cg.list_coins_categories()
         assert response == resp_json
 
+    #
+    # exchanges
+    #
     @responses.activate
     def test_list_coins_categories_market(self):
         """Test /coins/categories."""
@@ -558,6 +576,9 @@ class TestAPI:
         response = cg.get_exchange_volume_chart(id, days)
         assert response == resp_json
 
+    #
+    # finance
+    #
     @responses.activate
     def test_list_finance_platforms(self):
         """Test /finance_platforms."""
@@ -582,6 +603,9 @@ class TestAPI:
         response = cg.list_finance_products()
         assert response == resp_json
 
+    #
+    # indexes
+    #
     @responses.activate
     def test_list_indexes_info(self):
         """Test /indexes."""
@@ -610,6 +634,9 @@ class TestAPI:
         response = cg.list_indexes()
         assert response == resp_json
 
+    #
+    # derivatives
+    #
     @responses.activate
     def test_list_derivatives(self):
         """Test /derivatives."""
@@ -673,6 +700,24 @@ class TestAPI:
         response = cg.list_derivatives_exchanges()
         assert response == resp_json
 
+    #
+    # status_updates
+    #
+    @responses.activate
+    def test_get_status_updates(self):
+        """Test /status_updates."""
+        resp_json = {"status_updates": []}
+        responses.add(responses.GET,
+                      END_POINTS + 'status_updates',
+                      json=resp_json,
+                      status=200)
+
+        response = cg.get_status_updates()
+        assert response == resp_json
+
+    #
+    # events
+    #
     @responses.activate
     def test_list_events(self):
         """Test /events."""
@@ -725,18 +770,9 @@ class TestAPI:
         response = cg.list_event_types()
         assert response == resp_json
 
-    @responses.activate
-    def test_get_status_updates(self):
-        """Test /status_updates."""
-        resp_json = {"status_updates": []}
-        responses.add(responses.GET,
-                      END_POINTS + 'status_updates',
-                      json=resp_json,
-                      status=200)
-
-        response = cg.get_status_updates()
-        assert response == resp_json
-
+    #
+    # global
+    #
     @responses.activate
     def test_get_global(self):
         """Test /global."""
@@ -790,6 +826,9 @@ class TestAPI:
         response = cg.get_global_defi()
         assert response == resp_json
 
+    #
+    # exchange_rates
+    #
     @responses.activate
     def test_get_exchange_rates(self):
         """Test /exchange_rates"""
@@ -811,6 +850,9 @@ class TestAPI:
         response = cg.get_exchange_rates()
         assert response == resp_json
 
+    #
+    # trending
+    #
     @responses.activate
     def test_get_search_trending(self):
         """Test /search/trending."""
@@ -837,6 +879,9 @@ class TestAPI:
         response = cg.get_search_trending()
         assert response == resp_json
 
+    #
+    # companies
+    #
     @responses.activate
     def test_list_companies_holdings(self):
         """Test ​/companies​/public_treasury​/{coin_id}."""
