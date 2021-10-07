@@ -144,14 +144,14 @@ class TestAPI:
     @responses.activate
     def test_list_coins_markets(self):
         """Test /coins/markets."""
-        id = 'bitcoin'
+        vs_currency = 'usd'
         resp_json = [{"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}]
         responses.add(responses.GET,
-                      END_POINTS + 'coins/markets?vs_currency=bitcoin',
+                      END_POINTS + f'coins/markets?vs_currency={vs_currency}',
                       json=resp_json,
                       status=200)
 
-        response = cg.list_coins_markets(id)
+        response = cg.list_coins_markets(vs_currency)
         assert response == resp_json
 
     @responses.activate

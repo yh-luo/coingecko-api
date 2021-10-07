@@ -31,7 +31,7 @@ class CoinGeckoAPI:
         self.session = Session()
         atexit.register(self.close)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
     def _request(self, method: str, path: str) -> Any:
@@ -61,7 +61,7 @@ class CoinGeckoAPI:
             api_path = api_path[:-1]  # remove the redundant '&'
         return api_path
 
-    def close(self):
+    def close(self) -> None:
         """Make sure the connection is closed."""
         if self.session is not None:
             self.session.close()
