@@ -13,18 +13,29 @@ def _check_params(params):
 
 
 class CoinGeckoAPI:
+    """Wrapper for CoinGecko API (V3).
+
+    Args:
+        **kwargs: additional keyword arguments to pass in `requests.Request`.
+
+    Attributes:
+        kwargs: additional keyword arguments to pass in `requests.Request`.
+        session: current `requests.Session` connection.
+
+    """
     _ENDPOINT = 'https://api.coingecko.com/api/v3/'
     _CONNECT_TIMEOUT_S = 5
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs) -> None:
+        self.kwargs = kwargs
         self.session = Session()
         atexit.register(self.close)
 
     def __del__(self):
         self.close()
 
-    def _request(self, method: str, path: str, **kwargs) -> Any:
-        request = Request(method, self._ENDPOINT + path, **kwargs)
+    def _request(self, method: str, path: str) -> Any:
+        request = Request(method, self._ENDPOINT + path, **self.kwargs)
         response = self.session.send(request.prepare(),
                                      timeout=self._CONNECT_TIMEOUT_S)
         return self._process_response(response)
