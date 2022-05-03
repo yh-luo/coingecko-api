@@ -38,6 +38,9 @@ class CoinGeckoAPI:
                  path: str,
                  method: str = 'GET',
                  params: Union[dict, None] = None) -> Any:
+        if self.session is None:
+            raise RuntimeError('Session is already closed.')
+
         request = Request(method=method,
                           url=self._ENDPOINT + path,
                           params=params,
@@ -55,23 +58,11 @@ class CoinGeckoAPI:
             raise
         return data
 
-    def _process_params(self,
-                        api_path: str,
-                        params: Optional[Dict[str, Any]] = None) -> str:
-        if params:
-            _check_params(params)
-            api_path += '?'
-            for key, val in params.items():
-                if type(val) == bool:
-                    val = str(val).lower()
-                api_path += f'{key}={val}&'
-            api_path = api_path[:-1]  # remove the redundant '&'
-        return api_path
-
     def close(self) -> None:
         """Make sure the connection is closed."""
         if self.session is not None:
             self.session.close()
+            self.session = None
 
     #
     # ping
@@ -198,13 +189,6 @@ class CoinGeckoAPI:
 
         return self._request(f'coins/{id}/market_chart/range', params=_params)
 
-    def get_coin_status(self,
-                        id: str,
-                        params: Optional[Dict[str, Any]] = None) -> dict:
-        """Get status updates for a given coin."""
-
-        return self._request(f'coins/{id}/status_updates', params=params)
-
     def get_coin_ohlc(self,
                       id: str,
                       vs_currency: str,
@@ -317,33 +301,11 @@ class CoinGeckoAPI:
 
         return self._request(f'exchanges/{id}/tickers', params=params)
 
-    def get_exchange_status(self,
-                            id: str,
-                            params: Optional[Dict[str, Any]] = None) -> dict:
-        """Get status updates for a given exchange."""
-        return self._request(f'exchanges/{id}/status_updates', params=params)
-
     def get_exchange_volume_chart(self, id: str, days: int) -> List[list]:
         """Get volume_chart data for a given exchange."""
 
         return self._request(f'exchanges/{id}/volume_chart',
                              params={'days': days})
-
-    #
-    # finance
-    #
-    def list_finance_platforms(self,
-                               params: Optional[Dict[str, Any]] = None
-                               ) -> List[dict]:
-        """List all finance platforms."""
-
-        return self._request('finance_platforms', params=params)
-
-    def list_finance_products(self,
-                              params: Optional[Dict[str, Any]] = None
-                              ) -> List[dict]:
-
-        return self._request('finance_products', params=params)
 
     #
     # indexes
@@ -391,31 +353,6 @@ class CoinGeckoAPI:
 
     def list_derivatives_exchanges(self) -> List[dict]:
         return self._request('derivatives/exchanges/list')
-
-    #
-    # status_updates
-    #
-    def get_status_updates(self,
-                           params: Optional[Dict[str, Any]] = None) -> dict:
-        """List all status_updates with data."""
-
-        return self._request('status_updates', params=params)
-
-    #
-    # events
-    #
-    def list_events(self, params: Optional[Dict[str, Any]] = None) -> dict:
-        """Get events, paginated by 100."""
-
-        return self._request('events', params=params)
-
-    def list_event_countries(self) -> dict:
-        """Get list of event countries."""
-        return self._request('events/countries')
-
-    def list_event_types(self) -> dict:
-        """Get list of event types."""
-        return self._request('events/types')
 
     #
     # global

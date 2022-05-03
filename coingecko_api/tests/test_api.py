@@ -89,6 +89,16 @@ def test_failed_ping():
         cg.ping()
 
 
+def test_close():
+    """Test closing the client."""
+    cg = CoinGeckoAPI()
+    cg.close()
+
+    assert cg.session is None
+    with pytest.raises(RuntimeError):
+        cg.ping()
+
+
 #
 # simple
 #
@@ -297,20 +307,6 @@ def test_get_coin_market_chart_range():
                                        vs_currency,
                                        from_unix_ts=to_unix_ts,
                                        to_unix_ts=from_unix_ts)
-
-
-@responses.activate
-def test_get_coin_status():
-    """Test /coins/{id}/status_updates."""
-    id = 'bitcoin'
-    resp_json = {"status_updates": []}
-    responses.add(responses.GET,
-                  END_POINTS + f'coins/{id}/status_updates',
-                  json=resp_json,
-                  status=200)
-    response = cg.get_coin_status(id)
-
-    assert response == resp_json
 
 
 @responses.activate
@@ -594,25 +590,6 @@ def test_get_exchange_tickers():
 
 
 @responses.activate
-def test_get_exchange_status():
-    """Test /exchanges/{id}/status_updates."""
-    id = 'binance'
-    resp_json = {
-        "status_updates": [{
-            "description": "Binance Launchpool",
-            "category": "general"
-        }]
-    }
-    responses.add(responses.GET,
-                  END_POINTS + f'exchanges/{id}/status_updates',
-                  json=resp_json,
-                  status=200)
-
-    response = cg.get_exchange_status(id)
-    assert response == resp_json
-
-
-@responses.activate
 def test_get_exchange_volume_chart():
     """Test /exchanges/{id}/volume_chart"""
     id = 'binance'
@@ -625,35 +602,6 @@ def test_get_exchange_volume_chart():
                   status=200)
 
     response = cg.get_exchange_volume_chart(id, days)
-    assert response == resp_json
-
-
-#
-# finance
-#
-@responses.activate
-def test_list_finance_platforms():
-    """Test /finance_platforms."""
-    resp_json = [{"name": "Aave", "category": "DeFi Platform"}]
-    responses.add(responses.GET,
-                  END_POINTS + 'finance_platforms',
-                  json=resp_json,
-                  status=200)
-    response = cg.list_finance_platforms()
-
-    assert response == resp_json
-
-
-@responses.activate
-def test_list_finance_products():
-    """Test /finance_platforms."""
-    resp_json = [{"platform": "Celsius Network", "identifier": "USDC"}]
-    responses.add(responses.GET,
-                  END_POINTS + 'finance_products',
-                  json=resp_json,
-                  status=200)
-
-    response = cg.list_finance_products()
     assert response == resp_json
 
 
@@ -757,74 +705,6 @@ def test_list_derivatives_exchanges():
                   status=200)
 
     response = cg.list_derivatives_exchanges()
-    assert response == resp_json
-
-
-#
-# status_updates
-#
-@responses.activate
-def test_get_status_updates():
-    """Test /status_updates."""
-    resp_json = {"status_updates": []}
-    responses.add(responses.GET,
-                  END_POINTS + 'status_updates',
-                  json=resp_json,
-                  status=200)
-
-    response = cg.get_status_updates()
-    assert response == resp_json
-
-
-#
-# events
-#
-@responses.activate
-def test_list_events():
-    """Test /events."""
-    resp_json = {
-        "data": [{
-            "type": "Conference",
-            "title": "GeckoCon - NFTs Gone Wild",
-            "organizer": "CoinGecko"
-        }],
-        "count":
-        1,
-        "page":
-        1
-    }
-    responses.add(responses.GET,
-                  END_POINTS + 'events',
-                  json=resp_json,
-                  status=200)
-
-    response = cg.list_events()
-    assert response == resp_json
-
-
-@responses.activate
-def test_list_event_countries():
-    """Test /events/countries."""
-    resp_json = {"data": [{"country": "Taiwan", "code": "TW"}], "count": 66}
-    responses.add(responses.GET,
-                  END_POINTS + 'events/countries',
-                  json=resp_json,
-                  status=200)
-
-    response = cg.list_event_countries()
-    assert response == resp_json
-
-
-@responses.activate
-def test_list_event_types():
-    """Test /events/types."""
-    resp_json = {"data": ["Event", "Conference", "Meetup"], "count": 3}
-    responses.add(responses.GET,
-                  END_POINTS + 'events/types',
-                  json=resp_json,
-                  status=200)
-
-    response = cg.list_event_types()
     assert response == resp_json
 
 
