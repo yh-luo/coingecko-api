@@ -118,14 +118,14 @@ class CoinGeckoAPI:
 
     def get_supported_vs_currencies(self) -> List[str]:
         """Get list of supported vs_currencies."""
-        return self._request('GET', 'simple/supported_vs_currencies')
+        return self._request('simple/supported_vs_currencies')
 
     #
     # coins
     #
     def list_coins(self) -> List[dict]:
         """List all supported coins (no pagination required)."""
-        return self._request('GET', 'coins/list')
+        return self._request('coins/list')
 
     def list_coins_markets(
             self,
@@ -136,22 +136,20 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params('coins/markets', _params)
-        return self._request('GET', api_path)
+
+        return self._request('coins/markets', params=_params)
 
     def get_coin(self,
                  id: str,
                  params: Optional[Dict[str, Any]] = None) -> dict:
         """Get current data for a coin."""
-        api_path = self._process_params(f'coins/{id}', params)
-        return self._request('GET', api_path)
+        return self._request(f'coins/{id}', params=params)
 
     def get_coin_tickers(self,
                          id: str,
                          params: Optional[Dict[str, Any]] = None) -> dict:
         """Get coin tickers (paginated to 100 items)."""
-        api_path = self._process_params(f'coins/{id}/tickers', params)
-        return self._request('GET', api_path)
+        return self._request(f'coins/{id}/tickers', params=params)
 
     def get_coin_history(self,
                          id: str,
@@ -162,8 +160,8 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(f'coins/{id}/history', _params)
-        return self._request('GET', api_path)
+
+        return self._request(f'coins/{id}/history', params=_params)
 
     def get_coin_market_chart(self,
                               id: str,
@@ -175,8 +173,8 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(f'coins/{id}/market_chart', _params)
-        return self._request('GET', api_path)
+
+        return self._request(f'coins/{id}/market_chart', params=_params)
 
     def get_coin_market_chart_range(
             self,
@@ -197,16 +195,15 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(f'coins/{id}/market_chart/range',
-                                        _params)
-        return self._request('GET', api_path)
+
+        return self._request(f'coins/{id}/market_chart/range', params=_params)
 
     def get_coin_status(self,
                         id: str,
                         params: Optional[Dict[str, Any]] = None) -> dict:
         """Get status updates for a given coin."""
-        api_path = self._process_params(f'coins/{id}/status_updates', params)
-        return self._request('GET', api_path)
+
+        return self._request(f'coins/{id}/status_updates', params=params)
 
     def get_coin_ohlc(self,
                       id: str,
@@ -218,8 +215,8 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(f'coins/{id}/ohlc', _params)
-        return self._request('GET', api_path)
+
+        return self._request(f'coins/{id}/ohlc', params=_params)
 
     #
     # contract/token
@@ -229,9 +226,8 @@ class CoinGeckoAPI:
                        contract_address: str,
                        params: Optional[Dict[str, Any]] = None) -> dict:
         """Get coin info from contract address."""
-        api_path = self._process_params(
-            f'coins/{id}/contract/{contract_address}', params)
-        return self._request('GET', api_path)
+        return self._request(f'coins/{id}/contract/{contract_address}',
+                             params=params)
 
     def get_token_market_chart(
             self,
@@ -245,9 +241,10 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(
-            f'coins/{id}/contract/{contract_address}/market_chart', _params)
-        return self._request('GET', api_path)
+
+        return self._request(
+            f'coins/{id}/contract/{contract_address}/market_chart',
+            params=_params)
 
     def get_token_market_chart_range(
             self,
@@ -269,31 +266,31 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(
+
+        return self._request(
             f'coins/{id}/contract/{contract_address}/market_chart/range',
-            _params)
-        return self._request('GET', api_path)
+            params=_params)
 
     #
     # asset platforms
     #
     def list_asset_platforms(self) -> List[dict]:
         """List all asset platforms."""
-        return self._request('GET', 'asset_platforms')
+        return self._request('asset_platforms')
 
     #
     # categories
     #
     def list_coins_categories(self) -> List[dict]:
         """List all categories of coins."""
-        return self._request('GET', 'coins/categories/list')
+        return self._request('coins/categories/list')
 
     def list_coins_categories_market(self,
                                      params: Optional[Dict[str, Any]] = None
                                      ) -> List[dict]:
         """List all categories of coins with market data."""
-        api_path = self._process_params('coins/categories', params)
-        return self._request('GET', api_path)
+
+        return self._request('coins/categories', params=params)
 
     #
     # exchanges
@@ -302,37 +299,35 @@ class CoinGeckoAPI:
                             params: Optional[Dict[str,
                                                   Any]] = None) -> List[dict]:
         """List all exchanges with available information."""
-        api_path = self._process_params('exchanges', params)
-        return self._request('GET', api_path)
+
+        return self._request('exchanges', params=params)
 
     def list_exchanges(self) -> List[dict]:
         """List all supported markets id and name (no pagination)."""
-        return self._request('GET', 'exchanges/list')
+        return self._request('exchanges/list')
 
     def get_exchange_volume(self, id: str) -> dict:
         """Get exchange volume in BTC and top 100 tickers only"""
-        return self._request('GET', f'exchanges/{id}')
+        return self._request(f'exchanges/{id}')
 
     def get_exchange_tickers(self,
                              id: str,
                              params: Optional[Dict[str, Any]] = None) -> dict:
         """Get exchange tickers (paginated)."""
-        api_path = self._process_params(f'exchanges/{id}/tickers', params)
-        return self._request('GET', api_path)
+
+        return self._request(f'exchanges/{id}/tickers', params=params)
 
     def get_exchange_status(self,
                             id: str,
                             params: Optional[Dict[str, Any]] = None) -> dict:
         """Get status updates for a given exchange."""
-        api_path = self._process_params(f'exchanges/{id}/status_updates',
-                                        params)
-        return self._request('GET', api_path)
+        return self._request(f'exchanges/{id}/status_updates', params=params)
 
     def get_exchange_volume_chart(self, id: str, days: int) -> List[list]:
         """Get volume_chart data for a given exchange."""
-        api_path = self._process_params(f'exchanges/{id}/volume_chart',
-                                        {'days': days})
-        return self._request('GET', api_path)
+
+        return self._request(f'exchanges/{id}/volume_chart',
+                             params={'days': days})
 
     #
     # finance
@@ -341,14 +336,14 @@ class CoinGeckoAPI:
                                params: Optional[Dict[str, Any]] = None
                                ) -> List[dict]:
         """List all finance platforms."""
-        api_path = self._process_params('finance_platforms', params)
-        return self._request('GET', api_path)
+
+        return self._request('finance_platforms', params=params)
 
     def list_finance_products(self,
                               params: Optional[Dict[str, Any]] = None
                               ) -> List[dict]:
-        api_path = self._process_params('finance_products', params)
-        return self._request('GET', api_path)
+
+        return self._request('finance_products', params=params)
 
     #
     # indexes
@@ -357,17 +352,17 @@ class CoinGeckoAPI:
                           params: Optional[Dict[str,
                                                 Any]] = None) -> List[dict]:
         """List all market indexes with available information."""
-        api_path = self._process_params('indexes', params)
-        return self._request('GET', api_path)
+
+        return self._request('indexes', params=params)
 
     def list_indexes(self) -> List[dict]:
         """List market indexes id and name."""
-        return self._request('GET', 'indexes/list')
+        return self._request('indexes/list')
 
     # NOTE: unable to test
     def get_market_index(self, market_id: str, id: str) -> dict:
         """Get market index by market id and index id."""
-        return self._request('GET', f'indexes/{market_id}/{id}')
+        return self._request(f'indexes/{market_id}/{id}')
 
     #
     # derivatives
@@ -376,26 +371,26 @@ class CoinGeckoAPI:
                          params: Optional[Dict[str,
                                                Any]] = None) -> List[dict]:
         """List all derivative tickers."""
-        api_path = self._process_params('derivatives', params)
-        return self._request('GET', api_path)
+
+        return self._request('derivatives', params=params)
 
     def list_derivatives_exchanges_info(self,
                                         params: Optional[Dict[str, Any]] = None
                                         ) -> List[dict]:
         """List all derivative exchanges with available information."""
-        api_path = self._process_params('derivatives/exchanges', params)
-        return self._request('GET', api_path)
+
+        return self._request('derivatives/exchanges', params=params)
 
     def get_derivatives_exchange_info(self,
                                       id: str,
                                       params: Optional[Dict[str, Any]] = None
                                       ) -> dict:
         """Get derivative exchange data (able to include tickers)."""
-        api_path = self._process_params(f'derivatives/exchanges/{id}', params)
-        return self._request('GET', api_path)
+
+        return self._request(f'derivatives/exchanges/{id}', params=params)
 
     def list_derivatives_exchanges(self) -> List[dict]:
-        return self._request('GET', 'derivatives/exchanges/list')
+        return self._request('derivatives/exchanges/list')
 
     #
     # status_updates
@@ -403,53 +398,53 @@ class CoinGeckoAPI:
     def get_status_updates(self,
                            params: Optional[Dict[str, Any]] = None) -> dict:
         """List all status_updates with data."""
-        api_path = self._process_params('status_updates', params)
-        return self._request('GET', api_path)
+
+        return self._request('status_updates', params=params)
 
     #
     # events
     #
     def list_events(self, params: Optional[Dict[str, Any]] = None) -> dict:
         """Get events, paginated by 100."""
-        api_path = self._process_params('events', params)
-        return self._request('GET', api_path)
+
+        return self._request('events', params=params)
 
     def list_event_countries(self) -> dict:
         """Get list of event countries."""
-        return self._request('GET', 'events/countries')
+        return self._request('events/countries')
 
     def list_event_types(self) -> dict:
         """Get list of event types."""
-        return self._request('GET', 'events/types')
+        return self._request('events/types')
 
     #
     # global
     #
     def get_global(self) -> dict:
         """Get cryptocurrency global data."""
-        return self._request('GET', 'global')
+        return self._request('global')
 
     def get_global_defi(self) -> dict:
         """Get top 100 cryptocurrency decentralized finance(defi) data."""
-        return self._request('GET', 'global/decentralized_finance_defi')
+        return self._request('global/decentralized_finance_defi')
 
     #
     # exchange_rates
     #
     def get_exchange_rates(self) -> dict:
         """Get BTC-to-Currency exchange rates."""
-        return self._request('GET', 'exchange_rates')
+        return self._request('exchange_rates')
 
     #
     # trending
     #
     def get_search_trending(self) -> dict:
         """Get trending search coins (Top7) in the last 24 hours."""
-        return self._request('GET', 'search/trending')
+        return self._request('search/trending')
 
     #
     # companies
     #
     def list_companies_holdings(self, id: str) -> dict:
         """Get public companies bitcoin or ethereum holdings. (beta)"""
-        return self._request('GET', f'companies/public_treasury/{id}')
+        return self._request(f'companies/public_treasury/{id}')

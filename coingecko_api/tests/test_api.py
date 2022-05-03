@@ -5,30 +5,37 @@ from requests.exceptions import HTTPError
 
 END_POINTS = 'https://api.coingecko.com/api/v3/'
 
-simple_test_data_1 = [
-    ('bitcoin', 'usd', {
-        "bitcoin": {
-            "usd": 50087
-        }
-    }, {'ids': 'bitcoin', 'vs_currencies': 'usd'}),
-    (['bitcoin', 'ethereum'], ['usd', 'jpy'], {
-        "bitcoin": {
-            "usd": 50087,
-            "jpy": 5571067
-        },
-        "ethereum": {
-            "usd": 3453.26,
-            "jpy": 384063
-        }
-    }, {'ids': 'bitcoin,ethereum', 'vs_currencies':'usd,jpy'})
-]
+simple_test_data_1 = [('bitcoin', 'usd', {
+    "bitcoin": {
+        "usd": 50087
+    }
+}, {
+    'ids': 'bitcoin',
+    'vs_currencies': 'usd'
+}),
+                      (['bitcoin', 'ethereum'], ['usd', 'jpy'], {
+                          "bitcoin": {
+                              "usd": 50087,
+                              "jpy": 5571067
+                          },
+                          "ethereum": {
+                              "usd": 3453.26,
+                              "jpy": 384063
+                          }
+                      }, {
+                          'ids': 'bitcoin,ethereum',
+                          'vs_currencies': 'usd,jpy'
+                      })]
 
 simple_test_data_2 = [
     ('0xdac17f958d2ee523a2206206994597c13d831ec7', 'usd', {
         "0xdac17f958d2ee523a2206206994597c13d831ec7": {
             "usd": 1
         }
-    }, {'contract_addresses': '0xdac17f958d2ee523a2206206994597c13d831ec7','vs_currencies': 'usd'}),
+    }, {
+        'contract_addresses': '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        'vs_currencies': 'usd'
+    }),
     ([
         '0xdac17f958d2ee523a2206206994597c13d831ec7',
         '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -41,17 +48,21 @@ simple_test_data_2 = [
             "usd": 1,
             "jpy": 111.66
         }
-    }, {'contract_addresses': '0xdac17f958d2ee523a2206206994597c13d831ec7,0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 'vs_currencies': 'usd,jpy'})
+    }, {
+        'contract_addresses':
+        '0xdac17f958d2ee523a2206206994597c13d831ec7,0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        'vs_currencies': 'usd,jpy'
+    })
 ]
 
 cg = CoinGeckoAPI()
-
 
 
 def test_check_params():
     """Test valid and invalid params."""
     with pytest.raises(ValueError, match=r'params should be a dict.*'):
         cg.get_simple_price('bitcoin', 'usd', ['market_cap_desc'])
+
 
 #
 # ping
@@ -61,12 +72,13 @@ def test_ping():
     """Test /ping."""
     resp_json = {'gecko_says': '(V3) To the Moon!'}
     responses.add(responses.GET,
-                    END_POINTS + 'ping',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'ping',
+                  json=resp_json,
+                  status=200)
 
     response = cg.ping()
     assert response == resp_json
+
 
 @responses.activate
 def test_failed_ping():
@@ -76,51 +88,55 @@ def test_failed_ping():
     with pytest.raises(HTTPError):
         cg.ping()
 
+
 #
 # simple
 #
 @pytest.mark.parametrize('ids,vs_currencies,resp_json,params',
-                            simple_test_data_1,
-                            ids=['str', 'list'])
+                         simple_test_data_1,
+                         ids=['str', 'list'])
 @responses.activate
 def test_get_simple_price(ids, vs_currencies, resp_json, params):
     """Test /simple/price."""
     responses.add(responses.GET,
-                    END_POINTS + 'simple/price',
-                    match=[responses.matchers.query_param_matcher(params)],
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'simple/price',
+                  match=[responses.matchers.query_param_matcher(params)],
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_simple_price(ids, vs_currencies)
     assert response == resp_json
 
+
 @pytest.mark.parametrize('contract_addresses,vs_currencies,resp_json,params',
-                            simple_test_data_2,
-                            ids=['str', 'list'])
+                         simple_test_data_2,
+                         ids=['str', 'list'])
 @responses.activate
-def test_get_simple_token_price(contract_addresses, vs_currencies,
-                                resp_json, params):
+def test_get_simple_token_price(contract_addresses, vs_currencies, resp_json,
+                                params):
     responses.add(responses.GET,
-                    END_POINTS + 'simple/token_price/ethereum',
-                     match=[responses.matchers.query_param_matcher(params)],
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'simple/token_price/ethereum',
+                  match=[responses.matchers.query_param_matcher(params)],
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_simple_token_price('ethereum', contract_addresses,
-                                            vs_currencies)
+                                         vs_currencies)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_supported_vs_currencies():
     """Test /simple/supported_vs_currencies."""
     resp_json = ['btc', 'eth']
     responses.add(responses.GET,
-                    END_POINTS + 'simple/supported_vs_currencies',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'simple/supported_vs_currencies',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_supported_vs_currencies()
     assert response == resp_json
+
 
 #
 # coins
@@ -130,12 +146,13 @@ def test_list_coins():
     """Test /coins/list."""
     resp_json = [{"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}]
     responses.add(responses.GET,
-                    END_POINTS + 'coins/list',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'coins/list',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_coins()
     assert response == resp_json
+
 
 @responses.activate
 def test_list_coins_markets():
@@ -143,12 +160,13 @@ def test_list_coins_markets():
     vs_currency = 'usd'
     resp_json = [{"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}]
     responses.add(responses.GET,
-                    END_POINTS + f'coins/markets?vs_currency={vs_currency}',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'coins/markets?vs_currency={vs_currency}',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_coins_markets(vs_currency)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_coin():
@@ -156,12 +174,13 @@ def test_get_coin():
     id = 'bitcoin'
     resp_json = {"id": "bitcoin", "symbol": "btc", "name": "Bitcoin"}
     responses.add(responses.GET,
-                    END_POINTS + 'coins/bitcoin',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'coins/bitcoin',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_coin(id)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_coin_tickers():
@@ -175,12 +194,13 @@ def test_get_coin_tickers():
         }]
     }
     responses.add(responses.GET,
-                    END_POINTS + f'coins/{id}/tickers',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'coins/{id}/tickers',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_coin_tickers(id)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_coin_history():
@@ -206,13 +226,16 @@ def test_get_coin_history():
             }
         }
     }
-    responses.add(responses.GET,
-                    END_POINTS + f'coins/{id}/history?date={date}',
-                    json=resp_json,
-                    status=200)
+    responses.add(
+        responses.GET,
+        END_POINTS + f'coins/{id}/history',
+        match=[responses.matchers.query_param_matcher({'date': date})],
+        json=resp_json,
+        status=200)
 
     response = cg.get_coin_history(id, date)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_coin_market_chart():
@@ -225,15 +248,20 @@ def test_get_coin_market_chart():
         "market_caps": [[1633347897116, 897002925893.1621]],
         "total_volumes": [[1633347897116, 25853740745.60097]]
     }
-    responses.add(
-        responses.GET,
-        END_POINTS +
-        f'coins/{id}/market_chart?vs_currency={vs_currency}&days={days}',
-        json=resp_json,
-        status=200)
+    responses.add(responses.GET,
+                  END_POINTS + f'coins/{id}/market_chart',
+                  match=[
+                      responses.matchers.query_param_matcher({
+                          'vs_currency': vs_currency,
+                          'days': days
+                      })
+                  ],
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_coin_market_chart(id, vs_currency, days)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_coin_market_chart_range():
@@ -247,24 +275,29 @@ def test_get_coin_market_chart_range():
         "market_caps": [[1392595200000, 8005429360]],
         "total_volumes": [[1392595200000, 48516100]]
     }
-    responses.add(
-        responses.GET,
-        END_POINTS +
-        (f'coins/{id}/market_chart/range?vs_currency={vs_currency}'
-            f'&from={from_unix_ts}&to={to_unix_ts}'),
-        json=resp_json,
-        status=200)
+    responses.add(responses.GET,
+                  END_POINTS + f'coins/{id}/market_chart/range',
+                  match=[
+                      responses.matchers.query_param_matcher({
+                          'vs_currency': vs_currency,
+                          'from': from_unix_ts,
+                          'to': to_unix_ts
+                      })
+                  ],
+                  json=resp_json,
+                  status=200)
 
-    response = cg.get_coin_market_chart_range(id, vs_currency,
-                                                from_unix_ts, to_unix_ts)
+    response = cg.get_coin_market_chart_range(id, vs_currency, from_unix_ts,
+                                              to_unix_ts)
 
     assert response == resp_json
 
     with pytest.raises(ValueError, match=r'.*from_unix_tx.*to_unix_ts.*'):
         cg.get_coin_market_chart_range(id,
-                                        vs_currency,
-                                        from_unix_ts=to_unix_ts,
-                                        to_unix_ts=from_unix_ts)
+                                       vs_currency,
+                                       from_unix_ts=to_unix_ts,
+                                       to_unix_ts=from_unix_ts)
+
 
 @responses.activate
 def test_get_coin_status():
@@ -272,12 +305,13 @@ def test_get_coin_status():
     id = 'bitcoin'
     resp_json = {"status_updates": []}
     responses.add(responses.GET,
-                    END_POINTS + f'coins/{id}/status_updates',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'coins/{id}/status_updates',
+                  json=resp_json,
+                  status=200)
     response = cg.get_coin_status(id)
 
     assert response == resp_json
+
 
 @responses.activate
 def test_get_coin_ohlc():
@@ -287,13 +321,19 @@ def test_get_coin_ohlc():
     days = 1
     resp_json = [[1633350600000, 47901.63, 47901.63, 47845.59, 47845.59]]
     responses.add(responses.GET,
-                    END_POINTS +
-                    f'coins/{id}/ohlc?vs_currency={vs_currency}&days={days}',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'coins/{id}/ohlc',
+                  match=[
+                      responses.matchers.query_param_matcher({
+                          'vs_currency': vs_currency,
+                          'days': days,
+                      })
+                  ],
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_coin_ohlc(id, vs_currency, days)
     assert response == resp_json
+
 
 #
 # contract/token
@@ -310,17 +350,17 @@ def test_get_token_info():
         "asset_platform_id": "ethereum",
         "platforms": {
             "ethereum": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-            "binance-smart-chain":
-            "0x55d398326f99059ff775485246999027b3197955"
+            "binance-smart-chain": "0x55d398326f99059ff775485246999027b3197955"
         }
     }
     responses.add(responses.GET,
-                    END_POINTS + f'coins/{id}/contract/{contract_address}',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'coins/{id}/contract/{contract_address}',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_token_info(id, contract_address)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_token_market_chart():
@@ -335,15 +375,21 @@ def test_get_token_market_chart():
         "total_volumes": [[1633366855116, 65421865374.78419]]
     }
     responses.add(responses.GET,
-                    END_POINTS +
-                    (f'coins/{id}/contract/{contract_address}/'
-                    f'market_chart?vs_currency={vs_currency}&days={days}'),
-                    json=resp_json,
-                    status=200)
+                  END_POINTS +
+                  f'coins/{id}/contract/{contract_address}/market_chart',
+                  match=[
+                      responses.matchers.query_param_matcher({
+                          'vs_currency': vs_currency,
+                          'days': days,
+                      })
+                  ],
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_token_market_chart(id, contract_address, vs_currency,
-                                            days)
+                                         days)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_token_market_chart_range():
@@ -362,18 +408,23 @@ def test_get_token_market_chart_range():
             [1424822400000, 5],
         ]
     }
+    params = {
+        'vs_currency': vs_currency,
+        'from': from_unix_ts,
+        'to': to_unix_ts,
+    }
     responses.add(responses.GET,
-                    END_POINTS +
-                    (f'coins/{id}/contract/{contract_address}/'
-                    f'market_chart/range?vs_currency={vs_currency}'
-                    f'&from={from_unix_ts}&to={to_unix_ts}'),
-                    json=resp_json,
-                    status=200)
+                  END_POINTS +
+                  f'coins/{id}/contract/{contract_address}/market_chart/range',
+                  match=[responses.matchers.query_param_matcher(params)],
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_token_market_chart_range(id, contract_address,
-                                                vs_currency, from_unix_ts,
-                                                to_unix_ts)
+                                               vs_currency, from_unix_ts,
+                                               to_unix_ts)
     assert response == resp_json
+
 
 #
 # asset platforms
@@ -381,18 +432,15 @@ def test_get_token_market_chart_range():
 @responses.activate
 def test_list_asset_platforms():
     """Test /asset_platforms."""
-    resp_json = [{
-        "id": "ethereum",
-        "chain_identifier": 1,
-        "name": "ethereum"
-    }]
+    resp_json = [{"id": "ethereum", "chain_identifier": 1, "name": "ethereum"}]
     responses.add(responses.GET,
-                    END_POINTS + 'asset_platforms',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'asset_platforms',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_asset_platforms()
     assert response == resp_json
+
 
 #
 # categories
@@ -402,12 +450,13 @@ def test_list_coins_categories():
     """Test /coins/categories/list."""
     resp_json = [{"category_id": "stablecoins", "name": "Stablecoins"}]
     responses.add(responses.GET,
-                    END_POINTS + 'coins/categories/list',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'coins/categories/list',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_coins_categories()
     assert response == resp_json
+
 
 #
 # exchanges
@@ -423,12 +472,13 @@ def test_list_coins_categories_market():
         "volume_24h": 80474506243.29338
     }]
     responses.add(responses.GET,
-                    END_POINTS + 'coins/categories',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'coins/categories',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_coins_categories_market()
     assert response == resp_json
+
 
 @responses.activate
 def test_list_exchanges_info():
@@ -440,24 +490,26 @@ def test_list_exchanges_info():
         "url": "https://www.binance.com/"
     }]
     responses.add(responses.GET,
-                    END_POINTS + 'exchanges',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'exchanges',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_exchanges_info()
     assert response == resp_json
+
 
 @responses.activate
 def test_list_exchanges():
     """Test /exchanges/list."""
     resp_json = [{"id": "aave", "name": "Aave"}]
     responses.add(responses.GET,
-                    END_POINTS + 'exchanges/list',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'exchanges/list',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_exchanges()
     assert response == resp_json
+
 
 @responses.activate
 def test_get_exchange_volume():
@@ -493,12 +545,13 @@ def test_get_exchange_volume():
         }]
     }
     responses.add(responses.GET,
-                    END_POINTS + f'exchanges/{id}',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'exchanges/{id}',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_exchange_volume(id)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_exchange_tickers():
@@ -532,12 +585,13 @@ def test_get_exchange_tickers():
         }]
     }
     responses.add(responses.GET,
-                    END_POINTS + f'exchanges/{id}/tickers',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'exchanges/{id}/tickers',
+                  json=resp_json,
+                  status=200)
     response = cg.get_exchange_tickers(id)
 
     assert response == resp_json
+
 
 @responses.activate
 def test_get_exchange_status():
@@ -550,12 +604,13 @@ def test_get_exchange_status():
         }]
     }
     responses.add(responses.GET,
-                    END_POINTS + f'exchanges/{id}/status_updates',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'exchanges/{id}/status_updates',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_exchange_status(id)
     assert response == resp_json
+
 
 @responses.activate
 def test_get_exchange_volume_chart():
@@ -563,14 +618,15 @@ def test_get_exchange_volume_chart():
     id = 'binance'
     days = 1
     resp_json = [[1633408200000, "540716.62953207615878112376190664116"],
-                    [1633408800000, "539567.02347984278641005250981327051"]]
+                 [1633408800000, "539567.02347984278641005250981327051"]]
     responses.add(responses.GET,
-                    END_POINTS + f'exchanges/{id}/volume_chart',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'exchanges/{id}/volume_chart',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_exchange_volume_chart(id, days)
     assert response == resp_json
+
 
 #
 # finance
@@ -580,24 +636,26 @@ def test_list_finance_platforms():
     """Test /finance_platforms."""
     resp_json = [{"name": "Aave", "category": "DeFi Platform"}]
     responses.add(responses.GET,
-                    END_POINTS + 'finance_platforms',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'finance_platforms',
+                  json=resp_json,
+                  status=200)
     response = cg.list_finance_platforms()
 
     assert response == resp_json
+
 
 @responses.activate
 def test_list_finance_products():
     """Test /finance_platforms."""
     resp_json = [{"platform": "Celsius Network", "identifier": "USDC"}]
     responses.add(responses.GET,
-                    END_POINTS + 'finance_products',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'finance_products',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_finance_products()
     assert response == resp_json
+
 
 #
 # indexes
@@ -611,24 +669,26 @@ def test_list_indexes_info():
         "market": "CoinFLEX (Futures)"
     }]
     responses.add(responses.GET,
-                    END_POINTS + 'indexes',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'indexes',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_indexes_info()
     assert response == resp_json
+
 
 @responses.activate
 def test_list_indexes():
     """Test /indexes/list."""
     resp_json = [{"id": "DFN", "name": "CoinFLEX (Futures) DFN"}]
     responses.add(responses.GET,
-                    END_POINTS + 'indexes/list',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'indexes/list',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_indexes()
     assert response == resp_json
+
 
 #
 # derivatives
@@ -642,12 +702,13 @@ def test_list_derivatives():
         "index_id": "BTC"
     }]
     responses.add(responses.GET,
-                    END_POINTS + 'derivatives',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'derivatives',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_derivatives()
     assert response == resp_json
+
 
 @responses.activate
 def test_list_derivatives_exchanges_info():
@@ -659,12 +720,13 @@ def test_list_derivatives_exchanges_info():
         "url": "https://www.binance.com/"
     }]
     responses.add(responses.GET,
-                    END_POINTS + 'derivatives/exchanges',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'derivatives/exchanges',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_derivatives_exchanges_info()
     assert response == resp_json
+
 
 @responses.activate
 def test_get_derivatives_exchange_info():
@@ -677,24 +739,26 @@ def test_get_derivatives_exchange_info():
         "url": "https://www.binance.com/"
     }]
     responses.add(responses.GET,
-                    END_POINTS + f'derivatives/exchanges/{id}',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'derivatives/exchanges/{id}',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_derivatives_exchange_info(id)
     assert response == resp_json
+
 
 @responses.activate
 def test_list_derivatives_exchanges():
     """Test /derivatives/exchanges/list."""
     resp_json = [{"id": "binance_futures", "name": "Binance (Futures)"}]
     responses.add(responses.GET,
-                    END_POINTS + 'derivatives/exchanges/list',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'derivatives/exchanges/list',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_derivatives_exchanges()
     assert response == resp_json
+
 
 #
 # status_updates
@@ -704,12 +768,13 @@ def test_get_status_updates():
     """Test /status_updates."""
     resp_json = {"status_updates": []}
     responses.add(responses.GET,
-                    END_POINTS + 'status_updates',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'status_updates',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_status_updates()
     assert response == resp_json
+
 
 #
 # events
@@ -729,42 +794,39 @@ def test_list_events():
         1
     }
     responses.add(responses.GET,
-                    END_POINTS + 'events',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'events',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_events()
     assert response == resp_json
 
+
 @responses.activate
 def test_list_event_countries():
     """Test /events/countries."""
-    resp_json = {
-        "data": [{
-            "country": "Taiwan",
-            "code": "TW"
-        }],
-        "count": 66
-    }
+    resp_json = {"data": [{"country": "Taiwan", "code": "TW"}], "count": 66}
     responses.add(responses.GET,
-                    END_POINTS + 'events/countries',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'events/countries',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_event_countries()
     assert response == resp_json
+
 
 @responses.activate
 def test_list_event_types():
     """Test /events/types."""
     resp_json = {"data": ["Event", "Conference", "Meetup"], "count": 3}
     responses.add(responses.GET,
-                    END_POINTS + 'events/types',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'events/types',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_event_types()
     assert response == resp_json
+
 
 #
 # global
@@ -793,12 +855,13 @@ def test_get_global():
         }
     }
     responses.add(responses.GET,
-                    END_POINTS + 'global',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'global',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_global()
     assert response == resp_json
+
 
 @responses.activate
 def test_get_global_defi():
@@ -815,12 +878,13 @@ def test_get_global_defi():
         }
     }
     responses.add(responses.GET,
-                    END_POINTS + 'global/decentralized_finance_defi',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'global/decentralized_finance_defi',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_global_defi()
     assert response == resp_json
+
 
 #
 # exchange_rates
@@ -839,12 +903,13 @@ def test_get_exchange_rates():
         }
     }
     responses.add(responses.GET,
-                    END_POINTS + 'exchange_rates',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'exchange_rates',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_exchange_rates()
     assert response == resp_json
+
 
 #
 # trending
@@ -868,12 +933,13 @@ def test_get_search_trending():
         "exchanges": []
     }
     responses.add(responses.GET,
-                    END_POINTS + 'search/trending',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + 'search/trending',
+                  json=resp_json,
+                  status=200)
 
     response = cg.get_search_trending()
     assert response == resp_json
+
 
 #
 # companies
@@ -900,9 +966,9 @@ def test_list_companies_holdings():
         }]
     }
     responses.add(responses.GET,
-                    END_POINTS + f'companies/public_treasury/{id}',
-                    json=resp_json,
-                    status=200)
+                  END_POINTS + f'companies/public_treasury/{id}',
+                  json=resp_json,
+                  status=200)
 
     response = cg.list_companies_holdings(id)
     assert response == resp_json
