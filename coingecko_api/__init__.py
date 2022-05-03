@@ -34,10 +34,17 @@ class CoinGeckoAPI:
     def __del__(self) -> None:
         self.close()
 
-    def _request(self, method: str, path: str) -> Any:
-        request = Request(method, self._ENDPOINT + path, **self.kwargs)
+    def _request(self,
+                 path: str,
+                 method: str = 'GET',
+                 params: Union[dict, None] = None) -> Any:
+        request = Request(method=method,
+                          url=self._ENDPOINT + path,
+                          params=params,
+                          **self.kwargs)
         response = self.session.send(request.prepare(),
                                      timeout=self._CONNECT_TIMEOUT_S)
+
         return self._process_response(response)
 
     def _process_response(self, response: Response) -> Any:
@@ -71,7 +78,7 @@ class CoinGeckoAPI:
     #
     def ping(self) -> dict:
         """Check API server status."""
-        return self._request('GET', 'ping')
+        return self._request('ping')
 
     #
     # simple
@@ -88,8 +95,8 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params('simple/price', _params)
-        return self._request('GET', api_path)
+
+        return self._request('simple/price', params=_params)
 
     def get_simple_token_price(
             self,
@@ -106,8 +113,8 @@ class CoinGeckoAPI:
         if params:
             _check_params(params)
             _params.update(params)
-        api_path = self._process_params(f'simple/token_price/{id}', _params)
-        return self._request('GET', api_path)
+
+        return self._request(f'simple/token_price/{id}', params=_params)
 
     def get_supported_vs_currencies(self) -> List[str]:
         """Get list of supported vs_currencies."""
