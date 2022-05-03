@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from requests import Request, Response, Session
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 def _check_params(params):
@@ -16,17 +16,18 @@ class CoinGeckoAPI:
     """Wrapper for CoinGecko API (V3).
 
     Args:
-        **kwargs: additional keyword arguments to pass in `requests.Request`.
+        timeout (int): Seconds to wait for a request to fail.
+        **kwargs (dict): additional keyword arguments to pass in `requests.Request`.
 
     Attributes:
-        kwargs: additional keyword arguments to pass in `requests.Request`.
-        session: current `requests.Session` connection.
-
+        timeout (int): Seconds to wait for a request to fail.
+        session (Session): Current `requests.Session` connection.
+        kwargs (dict): additional keyword arguments to pass in `requests.Request`.
     """
     _ENDPOINT = 'https://api.coingecko.com/api/v3/'
-    _CONNECT_TIMEOUT_S = 5
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, timeout: int = 5, **kwargs) -> None:
+        self.timeout = timeout
         self.kwargs = kwargs
         self.session = Session()
         atexit.register(self.close)
@@ -45,8 +46,7 @@ class CoinGeckoAPI:
                           url=self._ENDPOINT + path,
                           params=params,
                           **self.kwargs)
-        response = self.session.send(request.prepare(),
-                                     timeout=self._CONNECT_TIMEOUT_S)
+        response = self.session.send(request.prepare(), timeout=self.timeout)
 
         return self._process_response(response)
 

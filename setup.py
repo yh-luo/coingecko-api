@@ -15,7 +15,7 @@ setup(name='coingecko-api',
       url='https://github.com/yh-luo/coingecko-api',
       author='Yu-Han Luo',
       author_email='yuhanluo1994@gmail.com',
-      install_requires=['requests', 'typing'],
+      install_requires=['requests'],
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: MIT License",
